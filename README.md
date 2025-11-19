@@ -51,11 +51,13 @@ A simple yet functional web application built with Flask and SQLite for managing
 ### Installation
 
 1. **Clone or download the repository**
+
    ```bash
    cd CICD_Security
    ```
 
 2. **Create a virtual environment** (recommended)
+
    ```bash
    python -m venv venv
    venv\Scripts\activate  # On Windows
@@ -63,16 +65,19 @@ A simple yet functional web application built with Flask and SQLite for managing
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Run the application**
+
    ```bash
    python app.py
    ```
 
 5. **Open your browser and navigate to**
+
    ```
    http://localhost:5000
    ```
@@ -80,26 +85,31 @@ A simple yet functional web application built with Flask and SQLite for managing
 ## 📖 Usage
 
 ### Home Page
+
 - Displays all users in the database
 - View user count and details
 - Quick access to add, search, update, or delete users
 
 ### Add User
+
 - Click "Add New User" button
 - Fill in user details (first name, last name, email, age, city)
 - Submit the form to create a new user
 
 ### Update User
+
 - Click "Edit" next to a user
 - Modify the desired fields
 - Save changes
 
 ### Delete User
+
 - Click "Delete" next to a user
 - Confirm deletion (if prompted)
 - User will be removed from the database
 
 ### Search
+
 - Use the search functionality to find users by name or email
 - View filtered results instantly
 
@@ -112,6 +122,7 @@ app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change to a secure key
 ```
 
 Generate a secure key using:
+
 ```python
 import secrets
 print(secrets.token_hex(16))
@@ -120,15 +131,16 @@ print(secrets.token_hex(16))
 ## 📊 Database Schema
 
 ### User Table
-| Field | Type | Constraints |
-|-------|------|-------------|
-| id | Integer | Primary Key, Auto-increment |
-| first_name | String(50) | Not Null |
-| last_name | String(50) | Not Null |
-| email | String(120) | Unique, Not Null |
-| age | Integer | Not Null |
-| city | String(50) | Not Null |
-| created_at | DateTime | Default: Current timestamp |
+
+| Field      | Type        | Constraints                 |
+| ---------- | ----------- | --------------------------- |
+| id         | Integer     | Primary Key, Auto-increment |
+| first_name | String(50)  | Not Null                    |
+| last_name  | String(50)  | Not Null                    |
+| email      | String(120) | Unique, Not Null            |
+| age        | Integer     | Not Null                    |
+| city       | String(50)  | Not Null                    |
+| created_at | DateTime    | Default: Current timestamp  |
 
 ## 🔒 Security Notes
 
@@ -153,14 +165,17 @@ print(secrets.token_hex(16))
 ## 🐛 Troubleshooting
 
 ### Database Issues
+
 - Delete `instance/exam_app.db` and restart the app to reset the database
 - Ensure the `instance/` directory has write permissions
 
 ### Port Already in Use
+
 - The app runs on port 5000 by default
 - To use a different port, modify `app.run(debug=True, port=5000)`
 
 ### Module Import Errors
+
 - Ensure virtual environment is activated
 - Reinstall dependencies: `pip install -r requirements.txt`
 
