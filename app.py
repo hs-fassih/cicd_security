@@ -83,9 +83,9 @@ def add_user():
         city = request.form.get('city')
         
         # Validate form data
-        # if not all([first_name, last_name, email, age, city]):
-        #     flash('All fields are required!', 'error')
-        #     return render_template('add.html')
+        if not all([first_name, last_name, email, age, city]):
+            flash('All fields are required!', 'error')
+            return render_template('add.html')
         
         # Check if age is a valid number
         try:
