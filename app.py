@@ -184,7 +184,7 @@ def update_user(user_id):
         # Check if age is a valid number
         try:
             age = int(age)
-            if age <= 18 or age > 25:
+            if age <= 0 or age > 150:
                 flash('Please enter a valid age (1-150)!', 'error')
                 return render_template('update.html', user=user)
         except ValueError:
