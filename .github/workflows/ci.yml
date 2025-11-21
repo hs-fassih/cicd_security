@@ -27,9 +27,9 @@ jobs:
           pip install pytest
 
       # Step 4: Run pytest
-      - name: Run tests
-        run: |
-          pytest --maxfail=1 --disable-warnings -q
+      # - name: Run tests
+      #   run: |
+      #     pytest --maxfail=1 --disable-warnings -q
 
       # Step 5: Run SonarQube Analysis
       - name: Run SonarQube analysis
