@@ -31,7 +31,7 @@ jobs:
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
-      # Step 5: Run SonarQube analysis (problem in this step)
+      # Step 5: Run SonarQube analysis
       - name: Run SonarQube analysis
         uses: SonarSource/sonarcloud-github-action@master
         env:
