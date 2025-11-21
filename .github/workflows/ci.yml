@@ -33,7 +33,7 @@ jobs:
 
       # Step 5: Run SonarQube analysis
       - name: Run SonarQube analysis
-        uses: SonarSource/sonarcloud-github-action@main
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
 
       # Step 6: Check quality gate
       - name: Check SonarQube Quality Gate
-        uses: SonarSource/sonarqube-quality-gate-action@main
+        uses: SonarSource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
