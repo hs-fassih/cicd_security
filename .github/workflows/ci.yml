@@ -42,7 +42,7 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
 
-      # Step 6: Check quality gate
+      # Step 6: Check quality gate ()
       - name: Check SonarQube Quality Gate
         uses: SonarSource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
