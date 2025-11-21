@@ -33,7 +33,7 @@ jobs:
 
       # Step 5: Run SonarQube Analysis
       - name: Run SonarQube analysis
-        uses: SonarSource/sonarcloud-github-action@9451aebc050272d3455c429f6a1e85b90df58ed5
+        uses: SonarSource/sonarcloud-github-action@e44258b109568baa0df60ed515909fc6c72cba41 # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
 
       # Step 6: Check quality gate
       - name: Check SonarQube Quality Gate
-        uses: SonarSource/sonarqube-quality-gate-action@9451aebc050272d3455c429f6a1e85b90df58ed5
+        uses: SonarSource/sonarqube-quality-gate-action@d304d050d930b02a896b0f85935344f023928496 # v1.1.0
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
