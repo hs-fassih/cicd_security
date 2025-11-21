@@ -30,3 +30,21 @@ jobs:
       - name: Run tests
         run: |
           pytest --maxfail=1 --disable-warnings -q
+
+      # Step 5: Run SonarQube analysis
+      - name: Run SonarQube analysis
+        uses: SonarSource/sonarcloud-github-action@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=hs-fassih
+
+      # Step 6: Check quality gate
+      - name: Check SonarQube Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@main
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
