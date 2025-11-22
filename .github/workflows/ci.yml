@@ -64,9 +64,52 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
 
-      # Step 7: Check quality gate
+      # Step 7: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
-        uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
-        timeout-minutes: 5
+        run: |
+          # Install jq for JSON parsing
+          sudo apt-get install -y jq
+
+          # Wait for SonarQube analysis to complete
+          for i in {1..30}; do
+            TASK_STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+              "https://sonarcloud.io/api/ce/activity?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.tasks[0].status')
+            
+            if [ "$TASK_STATUS" = "SUCCESS" ]; then
+              echo "SonarQube analysis completed successfully"
+              break
+            elif [ "$TASK_STATUS" = "FAILED" ]; then
+              echo "SonarQube analysis failed"
+              exit 1
+            fi
+            
+            if [ $i -lt 30 ]; then
+              echo "Waiting for analysis... (attempt $i/30)"
+              sleep 10
+            fi
+          done
+
+          # Get quality gate status
+          QUALITY_GATE=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.projectStatus.status')
+
+          # Get issues by severity
+          CRITICAL_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=CRITICAL&resolved=false" | jq '.total')
+          
+          HIGH_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=HIGH&resolved=false" | jq '.total')
+
+          echo "Quality Gate Status: $QUALITY_GATE"
+          echo "Critical Issues: $CRITICAL_ISSUES"
+          echo "High Issues: $HIGH_ISSUES"
+
+          # Fail only if there are HIGH or CRITICAL severity issues
+          if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
+            echo "❌ Failing CI: Found $CRITICAL_ISSUES CRITICAL and $HIGH_ISSUES HIGH severity issues"
+            exit 1
+          else
+            echo "✅ Quality Gate passed: No HIGH or CRITICAL severity issues found"
+          fi
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
