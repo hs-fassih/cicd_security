@@ -160,48 +160,34 @@
                 }
             });
             
-            function validateField(field) {
-                const value = field.value.trim();
-                let isValid = true;
-                let errorMessage = '';
-                
-                // Check if field is empty
-                if (!value) {
-                    isValid = false;
-                    errorMessage = 'This field is required.';
-                }
-                // Email validation
-                else if (field.type === 'email') {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(value)) {
-                        isValid = false;
-                        errorMessage = 'Please enter a valid email address.';
-                    }
-                }
-                // Age validation
-                else if (field.name === 'age') {
-                    const age = parseInt(value);
-                    if (isNaN(age) || age < 1 || age > 120) {
-                        isValid = false;
-                        errorMessage = 'Age must be between 1 and 120.';
-                    }
-                }
-                // Name validation
-                else if (field.name === 'first_name' || field.name === 'last_name') {
-                    if (value.length < 2 || value.length > 50) {
-                        isValid = false;
-                        errorMessage = 'Name must be between 2 and 50 characters.';
-                    }
-                }
-                // City validation
-                else if (field.name === 'city') {
-                    if (value.length < 2 || value.length > 50) {
-                        isValid = false;
-                        errorMessage = 'City must be between 2 and 50 characters.';
-                    }
-                }
-                
-                // Update field appearance
+            function validateEmailField(value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(value) ? { isValid: true, message: '' } : { isValid: false, message: 'Please enter a valid email address.' };
+            }
+            
+            function validateAgeField(value) {
+                const age = parseInt(value);
+                return (isNaN(age) || age < 1 || age > 120) ? { isValid: false, message: 'Age must be between 1 and 120.' } : { isValid: true, message: '' };
+            }
+            
+            function validateNameField(value) {
+                return (value.length < 2 || value.length > 50) ? { isValid: false, message: 'Name must be between 2 and 50 characters.' } : { isValid: true, message: '' };
+            }
+            
+            function validateCityField(value) {
+                return (value.length < 2 || value.length > 50) ? { isValid: false, message: 'City must be between 2 and 50 characters.' } : { isValid: true, message: '' };
+            }
+            
+            function getValidationResult(field, value) {
+                if (!value) return { isValid: false, message: 'This field is required.' };
+                if (field.type === 'email') return validateEmailField(value);
+                if (field.name === 'age') return validateAgeField(value);
+                if (field.name === 'first_name' || field.name === 'last_name') return validateNameField(value);
+                if (field.name === 'city') return validateCityField(value);
+                return { isValid: true, message: '' };
+            }
+            
+            function updateFieldFeedback(field, isValid, errorMessage) {
                 if (isValid) {
                     field.classList.remove('is-invalid');
                     field.classList.add('is-valid');
@@ -210,7 +196,6 @@
                     field.classList.add('is-invalid');
                 }
                 
-                // Update error message
                 let feedback = field.parentNode.querySelector('.invalid-feedback');
                 if (!feedback) {
                     feedback = document.createElement('div');
@@ -218,7 +203,12 @@
                     field.parentNode.appendChild(feedback);
                 }
                 feedback.textContent = errorMessage;
-                
+            }
+            
+            function validateField(field) {
+                const value = field.value.trim();
+                const { isValid, message } = getValidationResult(field, value);
+                updateFieldFeedback(field, isValid, message);
                 return isValid;
             }
         }
