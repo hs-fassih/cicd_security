@@ -19,6 +19,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Initialize database
 db = SQLAlchemy(app)
 
+# Template constants
+TEMPLATE_ADD = "add.html"
+TEMPLATE_UPDATE = "update.html"
+
 
 # Database Model
 class User(db.Model):
@@ -95,23 +99,23 @@ def add_user():
         # Validate form data updated by ahmed
         if not all([first_name, last_name, email, age, city]):
             flash("All fields are required!", "error")
-            return render_template("add.html")
+            return render_template(TEMPLATE_ADD)
 
         # Check if age is a valid number
         try:
             age = int(age)
             if age <= 0 or age > 150:
                 flash("Please enter a valid age (1-150)!", "error")
-                return render_template("add.html")
+                return render_template(TEMPLATE_ADD)
         except ValueError:
             flash("Age must be a valid number!", "error")
-            return render_template("add.html")
+            return render_template(TEMPLATE_ADD)
 
         # Check if email is unique
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash("Email already exists! Please use a different email.", "error")
-            return render_template("add.html")
+            return render_template(TEMPLATE_ADD)
 
         try:
             # Create new user object
@@ -130,10 +134,10 @@ def add_user():
         except Exception as e:
             db.session.rollback()
             flash(f"Error adding user: {str(e)}", "error")
-            return render_template("add.html")
+            return render_template(TEMPLATE_ADD)
 
     # Render add user form for GET request
-    return render_template("add.html")
+    return render_template(TEMPLATE_ADD)
 
 
 @app.route("/view/<int:user_id>")
@@ -185,23 +189,23 @@ def update_user(user_id):
         # Validate form data
         if not all([first_name, last_name, email, age, city]):
             flash("All fields are required!", "error")
-            return render_template("update.html", user=user)
+            return render_template(TEMPLATE_UPDATE, user=user)
 
         # Check if age is a valid number
         try:
             age = int(age)
             if age <= 0 or age > 150:
                 flash("Please enter a valid age (1-150)!", "error")
-                return render_template("update.html", user=user)
+                return render_template(TEMPLATE_UPDATE, user=user)
         except ValueError:
             flash("Age must be a valid number!", "error")
-            return render_template("update.html", user=user)
+            return render_template(TEMPLATE_UPDATE, user=user)
 
         # Check if email is unique (excluding current user)
         existing_user = User.query.filter_by(email=email).first()
         if existing_user and existing_user.id != user_id:
             flash("Email already exists! Please use a different email.", "error")
-            return render_template("update.html", user=user)
+            return render_template(TEMPLATE_UPDATE, user=user)
 
         try:
             # Update user object with new data
@@ -223,10 +227,10 @@ def update_user(user_id):
         except Exception as e:
             db.session.rollback()
             flash(f"Error updating user: {str(e)}", "error")
-            return render_template("update.html", user=user)
+            return render_template(TEMPLATE_UPDATE, user=user)
 
     # Render update form with current user data for GET request
-    return render_template("update.html", user=user)
+    return render_template(TEMPLATE_UPDATE, user=user)
 
 
 @app.route("/delete/<int:user_id>")
