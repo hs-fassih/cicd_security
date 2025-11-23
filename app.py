@@ -26,18 +26,6 @@ TEMPLATE_UPDATE = "update.html"
 
 # Database Model
 class User(db.Model):
-    """
-    User model for the application
-
-    Fields:
-    - id: Primary key (auto-increment)
-    - first_name: User's first name (required)
-    - last_name: User's last name (required)
-    - email: User's email (unique, required)
-    - age: User's age (required)
-    - city: User's city (required)
-    - created_at: Timestamp when user was created
-    """
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
@@ -56,38 +44,16 @@ class User(db.Model):
 
 @app.route("/")
 def index():
-    """
-    Home page - Display all users
 
-    TODO: Implement the following:
-    1. Query all users from database
-    2. Pass users to template
-    3. Handle case when no users exist
-    """
     # Get all users from database
     users = User.query.all()
-
     # Pass users to template (template will handle empty list case)
     return render_template("index.html", users=users)
 
 
 @app.route("/add", methods=["GET", "POST"])
 def add_user():
-    """
-    Add new user
 
-    GET: Display form to add user
-    POST: Process form data and create new user
-
-    TODO: Implement the following:
-    1. Handle GET request - render add form
-    2. Handle POST request - process form data
-    3. Validate form data
-    4. Create new user object
-    5. Add to database
-    6. Handle errors (duplicate email, validation errors)
-    7. Redirect to home page on success
-    """
     if request.method == "POST":
         # Get form data from request
         first_name = request.form.get("first_name")
@@ -142,14 +108,7 @@ def add_user():
 
 @app.route("/view/<int:user_id>")
 def view_user(user_id):
-    """
-    View individual user details
 
-    TODO: Implement the following:
-    1. Get user by ID from database
-    2. Handle case when user doesn't exist
-    3. Pass user to template
-    """
     # Get user by ID (returns 404 if not found)
     user = User.query.get_or_404(user_id)
 
@@ -159,22 +118,7 @@ def view_user(user_id):
 
 @app.route("/update/<int:user_id>", methods=["GET", "POST"])
 def update_user(user_id):
-    """
-    Update existing user
 
-    GET: Display form with current user data
-    POST: Process form data and update user
-
-    TODO: Implement the following:
-    1. Get user by ID from database
-    2. Handle GET request - render update form with current data
-    3. Handle POST request - process form data
-    4. Validate form data
-    5. Update user object
-    6. Save changes to database
-    7. Handle errors
-    8. Redirect to home page on success
-    """
     # Get user by ID (returns 404 if not found)
     user = User.query.get_or_404(user_id)
 
@@ -235,15 +179,7 @@ def update_user(user_id):
 
 @app.route("/delete/<int:user_id>")
 def delete_user(user_id):
-    """
-    Delete user
 
-    TODO: Implement the following:
-    1. Get user by ID from database
-    2. Delete user from database
-    3. Add success message
-    4. Redirect to home page
-    """
     # Get user by ID (returns 404 if not found)
     user = User.query.get_or_404(user_id)
 
@@ -265,14 +201,7 @@ def delete_user(user_id):
 
 @app.route("/search")
 def search_users():
-    """
-    Search users by name or city
 
-    TODO: Implement the following:
-    1. Get search query from request parameters
-    2. Search users by first_name, last_name, or city
-    3. Pass results to template
-    """
     # Get search query from request
     query = request.args.get("query", "")
 
@@ -319,9 +248,8 @@ def create_tables():
 
 # Application entry point
 if __name__ == "__main__":
-    # TODO: Create database tables before running
-    # Hint: Call create_tables() function
-    create_tables()
 
+    # Create database tables
+    create_tables()
     # Run the application
     app.run(debug=False, host="0.0.0.0", port=5000)
