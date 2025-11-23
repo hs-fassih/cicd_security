@@ -5,7 +5,7 @@
 # Install these packages using: pip install -r requirements.txt
 
 # Core Flask framework
-Flask==2.3.3
+Flask==3.1.2
 
 # Database ORM for Flask
 Flask-SQLAlchemy==3.0.5
