@@ -1,7 +1,7 @@
 # To rebuild, first run "sudo docker system prune -a -f"
 # Multi-stage build for Flask CRUD application
 # Stage 1: Builder stage
-FROM python:3.13-slim AS builder
+FROM python:3.14-slim AS builder
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ RUN pip install --upgrade pip && \
 
 
 # Stage 2: Runtime stage
-FROM python:3.13-slim
+FROM python:3.14-slim
 
 # Set working directory
 WORKDIR /app
