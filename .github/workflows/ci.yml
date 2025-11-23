@@ -137,7 +137,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 10: Build Docker image
+      # Step 10: Build Docker image (PR name lower cased)
       - name: Build Docker image
         run: |
           IMAGE_TAG="ghcr.io/${{ github.repository }}:${{ github.sha }}"
