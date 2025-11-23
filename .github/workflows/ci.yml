@@ -31,7 +31,22 @@ jobs:
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
-      # Step 5: Run Semgrep (python + owasp-top-ten) — fail only on ERROR severity
+      # Step 5: Run Trivy filesystem scan for vulnerabilities and secrets
+      - name: Run Trivy SCA (filesystem mode)
+        run: |
+          # Install Trivy
+          sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy -y
+          
+          # Run Trivy filesystem scan
+          trivy fs --security-checks vuln,secret --exit-code 1 --severity HIGH,CRITICAL .
+        env:
+          TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
+
+      # Step 6: Run Semgrep (python + owasp-top-ten) — fail only on ERROR severity
       - name: Run Semgrep rulesets
         run: |
           # install semgrep and jq
@@ -52,7 +67,7 @@ jobs:
             exit 1
           fi
 
-      # Step 6: Run SonarQube Analysis
+      # Step 7: Run SonarQube Analysis
       - name: Run SonarQube analysis
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
@@ -64,7 +79,7 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
 
-      # Step 7: Check SonarQube Quality Gate (HIGH and CRITICAL only)
+      # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
         run: |
           # Install jq for JSON parsing
