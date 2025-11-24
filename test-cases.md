@@ -11,7 +11,7 @@
 **Steps:**
 1. Create a test file `test_format.py` with intentionally bad formatting:
 ```python
-# Badly formatted code example
+# Badly formatted python code example
 def hello(    ):
     x=1
     y =2
