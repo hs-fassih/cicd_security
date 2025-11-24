@@ -191,21 +191,27 @@ jobs:
       - name: Run OWASP ZAP DAST Scan
         run: |
           echo "Starting OWASP ZAP Baseline Scan..."
+          echo "Current directory: $(pwd)"
+          echo "Workspace: ${{ github.workspace }}"
           
-          # Run ZAP baseline scan
+          # Run ZAP baseline scan with proper volume mounting
           docker run --rm \
             --network host \
             -v ${{ github.workspace }}:/zap/wrk:rw \
+            -u root \
             -t ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
             -t http://localhost:8080 \
-            -r /zap/wrk/zap-report.html \
-            -w /zap/wrk/zap-report.md \
-            -x /zap/wrk/zap-report.xml \
+            -g gen.conf \
+            -r zap-report.html \
+            -w zap-report.md \
+            -x zap-report.xml \
             -I || true
           
           echo "ZAP scan completed. Checking for report files..."
-          ls -la ${{ github.workspace }}/zap-report.* || echo "No ZAP reports found"
+          ls -la zap-report.* 2>/dev/null || echo "No ZAP reports found in current directory"
+          echo "Files in workspace root:"
+          ls -la ${{ github.workspace }}/ | grep zap || echo "No zap files found"
 
       # Step 15: Evaluate ZAP results and fail on High/Medium alerts
       - name: Evaluate ZAP Scan Results
