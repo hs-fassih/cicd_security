@@ -1,5 +1,5 @@
 # Dependabot configuration for automated dependency updates
-# This file configures Dependabot to monitor and update dependencies
+# This file configures Dependabot to monitor and update dependencies (if old)
 
 version: 2
 updates:
