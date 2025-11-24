@@ -32,7 +32,7 @@ def hello(    ):
 
 **Formatted Output Example:**
 ```python
-# After Black formatting
+# After Black formatting code
 def hello():
     x = 1
     y = 2
