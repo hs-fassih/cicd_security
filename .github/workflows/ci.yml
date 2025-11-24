@@ -167,8 +167,8 @@ jobs:
       # Step 13: Start application with Docker Compose for DAST
       - name: Start application for DAST testing
         run: |
-          echo "Starting application with docker-compose..."
-          docker-compose up -d
+          echo "Starting application with docker compose..."
+          docker compose up -d
           
           echo "Waiting for application to be ready..."
           for i in {1..30}; do
@@ -178,7 +178,7 @@ jobs:
             fi
             if [ $i -eq 30 ]; then
               echo "❌ Application failed to start"
-              docker-compose logs
+              docker compose logs
               exit 1
             fi
             echo "Waiting... (attempt $i/30)"
@@ -229,5 +229,5 @@ jobs:
         if: always()
         run: |
           echo "Stopping application..."
-          docker-compose down -v
+          docker compose down -v
           echo "✅ Application stopped and cleaned up"
