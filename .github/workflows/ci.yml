@@ -237,4 +237,4 @@ jobs:
         run: |
           echo "Stopping application..."
           docker compose down -v
-          echo "✅ Application stopped and cleaned up"
+          echo "✅ Application succcessfully stopped and cleaned up"
