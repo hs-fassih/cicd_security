@@ -163,3 +163,71 @@ jobs:
           echo "Pushing image: $IMAGE_TAG"
           docker push $IMAGE_TAG
           echo "✅ Image pushed successfully to GHCR"
+
+      # Step 13: Start application with Docker Compose for DAST
+      - name: Start application for DAST testing
+        run: |
+          echo "Starting application with docker-compose..."
+          docker-compose up -d
+          
+          echo "Waiting for application to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/ > /dev/null 2>&1; then
+              echo "✅ Application is ready!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "❌ Application failed to start"
+              docker-compose logs
+              exit 1
+            fi
+            echo "Waiting... (attempt $i/30)"
+            sleep 5
+          done
+          
+          echo "Application is running and accessible at http://localhost:8080"
+
+      # Step 14: Run OWASP ZAP Baseline Scan
+      - name: Run OWASP ZAP DAST Scan
+        run: |
+          echo "Starting OWASP ZAP Baseline Scan..."
+          
+          # Run ZAP baseline scan
+          docker run --rm \
+            --network host \
+            -v ${{ github.workspace }}:/zap/wrk:rw \
+            -t ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t http://localhost:8080 \
+            -r zap-report.html \
+            -w zap-report.md \
+            -x zap-report.xml \
+            -I || true
+          
+          echo "ZAP scan completed. Report generated."
+
+      # Step 15: Evaluate ZAP results and fail on High/Medium alerts
+      - name: Evaluate ZAP Scan Results
+        run: |
+          echo "Evaluating ZAP scan results..."
+          python scripts/zap-hook.py
+
+      # Step 16: Upload ZAP Reports as Artifacts
+      - name: Upload ZAP Scan Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-scan-reports
+          path: |
+            zap-report.html
+            zap-report.xml
+            zap-report.md
+          retention-days: 30
+
+      # Step 17: Stop application container
+      - name: Stop application
+        if: always()
+        run: |
+          echo "Stopping application..."
+          docker-compose down -v
+          echo "✅ Application stopped and cleaned up"
