@@ -1,6 +1,6 @@
 # Flask CRUD Web Application
 
-A simple yet functional web application built with Flask and SQLite for managing user data. This project demonstrates fundamental Create, Read, Update, and Delete (CRUD) operations with a clean, user-friendly interface.
+A simple/basic yet functional web application built with Flask and SQLite for managing user data. This project demonstrates fundamental Create, Read, Update, and Delete (CRUD) operations with a clean, user-friendly interface.
 
 ## 📋 Features
 
