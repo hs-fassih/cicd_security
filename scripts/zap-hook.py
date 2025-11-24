@@ -6,7 +6,14 @@ This script processes ZAP scan results and fails the build based on alert severi
 
 import sys
 import json
-from xml.etree import ElementTree as ET
+
+try:
+    import defusedxml.ElementTree as ET
+except ImportError:
+    # Fallback for local development
+    from xml.etree import ElementTree as ET
+
+    print("Warning: defusedxml not available, using standard xml library")
 
 
 def parse_zap_xml(xml_file):

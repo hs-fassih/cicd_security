@@ -17,4 +17,7 @@ WTForms==3.2.1            # Form validation library
 # Development dependencies (optional)
 python-dotenv==1.2.1      # For environment variable management
 
+# Security dependencies
+defusedxml==0.7.1         # Secure XML parsing (prevents XXE attacks)
+
 # Note: SQLite is included with Python by default, so no additional database driver is needed
