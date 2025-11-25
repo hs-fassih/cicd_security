@@ -1,0 +1,99 @@
+# Gitleaks Configuration for CI/CD Security Project
+# This configuration defines rules for detecting hardcoded secrets in the codebase
+
+title = "Gitleaks Configuration for CICD_Security"
+
+# Extend the default Gitleaks configuration
+[extend]
+useDefault = true
+
+# Allowlist specific files that should not be scanned
+[allowlist]
+description = "Allowlisted files and patterns"
+paths = [
+  '''.env.example''',           # Example/template files are safe
+  '''.gitleaks.toml''',          # This config file itself
+  '''test-cases.md''',           # Documentation files
+  '''README.md''',               # Documentation
+  '''tests/.*_test\.py''',       # Test files with test secrets
+]
+
+# Allowlist specific regex patterns (test data, placeholders)
+regexes = [
+  '''test-secret-key-for-testing-only''',  # Explicitly test secret
+  '''your-secret-key-here''',              # Placeholder in .env.example
+  '''xxx+''',                              # Placeholder patterns
+  '''placeholder''',                       # Generic placeholder
+  '''<YOUR_.*>''',                         # Template placeholders
+  '''example\.com''',                      # Example domains
+]
+
+# Allowlist specific commits (if needed)
+commits = [
+  # Add commit hashes here if you need to allowlist specific commits
+]
+
+# Custom rules for Flask-specific secrets
+[[rules]]
+id = "flask-secret-key"
+description = "Flask SECRET_KEY"
+regex = '''SECRET_KEY\s*=\s*['""]([^'""]{16,})['""]'''
+tags = ["secret", "flask"]
+[rules.allowlist]
+regexes = [
+  '''test-secret-key''',
+  '''your-secret-key-here''',
+  '''os\.getenv''',              # Environment variable usage is OK
+  '''config\[.*SECRET_KEY.*\]''',
+]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Personal Access Token"
+regex = '''gh[pousr]_[0-9a-zA-Z]{36,255}'''
+tags = ["secret", "github", "token"]
+
+[[rules]]
+id = "sonarqube-token"
+description = "SonarQube Token"
+regex = '''sonar[._-]?token[._-]?[=:]\s*['""]?([a-f0-9]{40})['""]?'''
+tags = ["secret", "sonarqube", "token"]
+[rules.allowlist]
+regexes = [
+  '''os\.getenv''',
+  '''secrets\.''',
+  '''\$\{\{.*\}\}''',  # GitHub Actions syntax
+]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(api[_-]?key|apikey|api[_-]?secret)['""]?\s*[:=]\s*['""]?([a-zA-Z0-9]{20,})['""]?'''
+tags = ["secret", "api-key"]
+[rules.allowlist]
+regexes = [
+  '''os\.getenv''',
+  '''config\[''',
+  '''\$\{\{.*\}\}''',
+]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN[ A-Z]*PRIVATE KEY-----'''
+tags = ["secret", "private-key"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["secret", "aws"]
+
+[[rules]]
+id = "password-in-url"
+description = "Password in URL"
+regex = '''[a-zA-Z]{3,10}://[^/\s:@]{3,20}:[^/\s:@]{3,20}@.{1,100}'''
+tags = ["secret", "password"]
+
+# Global allowlist stopwords (reduce false positives)
+# Common words that might trigger false positives in secrets detection
