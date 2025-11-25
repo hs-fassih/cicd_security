@@ -6,7 +6,7 @@ services:
     image: bkimminich/juice-shop:latest
     container_name: juice-shop-test
     ports:
-      - "3000:3000"
+      - "3001:3000"  # Changed to 3001 to avoid conflict with Grafana
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - LOG_LEVEL=${LOG_LEVEL:-error}
