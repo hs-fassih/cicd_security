@@ -1,0 +1,76 @@
+# CODEOWNERS - Code Review Requirements
+# =======================================================
+# This file defines who must review and approve changes to specific parts of the repository.
+# When a PR modifies files matching these patterns, the specified owners must approve.
+#
+# Syntax: <file-pattern> @username @org/team-name
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# =======================================================
+# Default Owners (All Files)
+# =======================================================
+# Require approval from repository owner for all changes by default
+* @hs-fassih
+
+# =======================================================
+# Critical Security Files (Require Extra Scrutiny)
+# =======================================================
+# CI/CD Pipeline - Changes to workflows require approval
+.github/workflows/*.yml @hs-fassih
+.github/workflows/*.yaml @hs-fassih
+
+# Security Configurations
+.gitleaks.toml @hs-fassih
+.pre-commit-config.yaml @hs-fassih
+sonar-project.properties @hs-fassih
+
+# Docker & Container Security
+dockerfile @hs-fassih
+docker-compose.yml @hs-fassih
+.dockerignore @hs-fassih
+
+# Dependency Management
+requirements.txt @hs-fassih
+.github/dependabot.yml @hs-fassih
+
+# Environment & Secrets (Should rarely change)
+.env.example @hs-fassih
+.gitignore @hs-fassih
+
+# =======================================================
+# Application Code
+# =======================================================
+# Core application requires approval
+app.py @hs-fassih
+
+# Security-related scripts
+scripts/zap-hook.py @hs-fassih
+scripts/entrypoint.sh @hs-fassih
+
+# =======================================================
+# Infrastructure & Deployment
+# =======================================================
+# Any infrastructure changes
+*.tf @hs-fassih
+*.tfvars @hs-fassih
+*.bicep @hs-fassih
+
+# =======================================================
+# Documentation (Less Strict)
+# =======================================================
+# Documentation can be reviewed by anyone with write access
+# Remove this line if you want stricter control over docs
+*.md @hs-fassih
+
+# =======================================================
+# Notes for Multi-Team Repositories
+# =======================================================
+# Example patterns for team-based ownership:
+# /backend/** @backend-team
+# /frontend/** @frontend-team
+# /infrastructure/** @devops-team @security-team
+# *.py @python-developers
+# tests/** @qa-team
+
+# Example for requiring multiple approvers:
+# .github/workflows/deploy.yml @devops-team @security-team
