@@ -1,55 +1,26 @@
-# To rebuild, first run "sudo docker system prune -a -f"
-# Multi-stage build for Flask CRUD application
-# Stage 1: Builder stage
-FROM python:3.14-slim AS builder
+# OWASP Juice Shop Docker Image
+# Using official Juice Shop image for security pipeline validation
+# Repository: https://github.com/juice-shop/juice-shop
 
-# Set working directory
-WORKDIR /app
+FROM bkimminich/juice-shop:latest
 
-# Copy requirements file
-COPY requirements.txt .
-
-# Install dependencies in a virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install gunicorn
-
-
-# Stage 2: Runtime stage
-FROM python:3.14-slim
-
-# Set working directory
-WORKDIR /app
-
-# Create non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
-# Copy virtual environment from builder stage
-COPY --from=builder /opt/venv /opt/venv
-
-# Copy entrypoint script and set permissions (as root)
-COPY scripts/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# Copy application code
-COPY --chown=appuser:appuser . .
+# Expose Juice Shop port
+EXPOSE 3000
 
 # Set environment variables
-ENV PATH="/opt/venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+ENV NODE_ENV=production \
+    LOG_LEVEL=error \
+    PORT=3000
 
-# Switch to non-root user
-USER appuser
+# Use node user (non-root) - already configured in base image
+USER node
 
-# Expose port
-EXPOSE 8080
+# Working directory
+WORKDIR /juice-shop
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/').read()" || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || exit 1
 
-# Run entrypoint script
-CMD ["/app/entrypoint.sh"]
+# Start Juice Shop
+CMD ["npm", "start"]

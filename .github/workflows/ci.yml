@@ -1,7 +1,15 @@
 name: CI - Build and Test
 
 # Trigger the workflow on push and pull request events
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - test/juice-shop-pipeline
+  pull_request:
+    branches:
+      - main
+      - test/juice-shop-pipeline
 
 # Global default permissions (least privilege principle)
 # Each job can override these if needed
@@ -82,21 +90,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      # Step 2: Set up Python
+      # Step 2: Set up Python (only for Flask app on main branch)
       - name: Set up Python
+        if: github.ref == 'refs/heads/main'
         uses: actions/setup-python@v6
         with:
           python-version: '3.14'
 
-      # Step 3: Install dependencies
+      # Step 3: Install dependencies (only for Flask app on main branch)
       - name: Install dependencies
+        if: github.ref == 'refs/heads/main'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
 
-      # Step 4: Run pytest
+      # Step 4: Run pytest (only for Flask app on main branch)
       - name: Run tests
+        if: github.ref == 'refs/heads/main'
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
@@ -111,12 +122,15 @@ jobs:
           sudo apt-get install trivy -y
           
           # Run Trivy filesystem scan
+          # On test branch, continue even if vulnerabilities found (expected)
           trivy fs --security-checks vuln,secret --exit-code 1 --severity HIGH,CRITICAL .
         env:
           TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
+        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 6: Run Semgrep (python + owasp-top-ten) — fail only on ERROR severity
       - name: Run Semgrep rulesets
+        if: github.ref == 'refs/heads/main'
         run: |
           # install semgrep and jq
           python -m pip install --upgrade pip
@@ -136,8 +150,9 @@ jobs:
             exit 1
           fi
 
-      # Step 7: Run SonarQube Analysis
+      # Step 7: Run SonarQube Analysis (only on main branch)
       - name: Run SonarQube analysis
+        if: github.ref == 'refs/heads/main'
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -148,8 +163,9 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
 
-      # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
+      # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only) - only on main branch
       - name: Check SonarQube Quality Gate
+        if: github.ref == 'refs/heads/main'
         run: |
           # Install jq for JSON parsing
           sudo apt-get install -y jq
@@ -214,15 +230,16 @@ jobs:
           docker build -t $IMAGE_TAG .
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-      # Step 11: Trivy image scan
+      # Step 11: Trivy image scan (allows failures on test branch - expects vulnerabilities)
       - name: Run Trivy image scan
         run: |
           echo "Scanning Docker image: $IMAGE_TAG"
           trivy image --security-checks vuln,config --exit-code 1 --severity HIGH,CRITICAL $IMAGE_TAG
+        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
-      # Step 12: Push Docker image (only on clean scan)
+      # Step 12: Push Docker image (only on clean scan or test branch)
       - name: Push Docker image to GHCR
-        if: success()
+        if: success() || github.ref == 'refs/heads/test/juice-shop-pipeline'
         run: |
           echo "Pushing image: $IMAGE_TAG"
           docker push $IMAGE_TAG
@@ -234,9 +251,16 @@ jobs:
           echo "Starting application with docker compose..."
           docker compose up -d
           
-          echo "Waiting for application to be ready..."
+          # Determine port based on branch
+          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+            APP_PORT=3000
+          else
+            APP_PORT=8080
+          fi
+          
+          echo "Waiting for application to be ready on port $APP_PORT..."
           for i in {1..30}; do
-            if curl -f http://localhost:8080/ > /dev/null 2>&1; then
+            if curl -f http://localhost:$APP_PORT/ > /dev/null 2>&1; then
               echo "✅ Application is ready!"
               break
             fi
@@ -249,7 +273,14 @@ jobs:
             sleep 5
           done
           
-          echo "Application is running and accessible at http://localhost:8080"
+          # Set APP_PORT for ZAP scan
+          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+            echo "APP_PORT=3000" >> $GITHUB_ENV
+            echo "Application is running and accessible at http://localhost:3000"
+          else
+            echo "APP_PORT=8080" >> $GITHUB_ENV
+            echo "Application is running and accessible at http://localhost:8080"
+          fi
 
       # Step 14: Run OWASP ZAP Baseline Scan
       - name: Run OWASP ZAP DAST Scan
@@ -257,6 +288,7 @@ jobs:
           echo "Starting OWASP ZAP Baseline Scan..."
           echo "Current directory: $(pwd)"
           echo "Workspace: ${{ github.workspace }}"
+          echo "Target: http://localhost:${{ env.APP_PORT }}"
           
           # Run ZAP baseline scan with proper volume mounting
           docker run --rm \
@@ -265,7 +297,7 @@ jobs:
             -u root \
             -t ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
-            -t http://localhost:8080 \
+            -t http://localhost:${{ env.APP_PORT }} \
             -g gen.conf \
             -r zap-report.html \
             -w zap-report.md \
@@ -277,11 +309,12 @@ jobs:
           echo "Files in workspace root:"
           ls -la ${{ github.workspace }}/ | grep zap || echo "No zap files found"
 
-      # Step 15: Evaluate ZAP results and fail on High/Medium alerts
+      # Step 15: Evaluate ZAP results (allows failures on test branch - expects vulnerabilities)
       - name: Evaluate ZAP Scan Results
         run: |
           echo "Evaluating ZAP scan results..."
           python scripts/zap-hook.py
+        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 16: Upload ZAP Reports as Artifacts
       - name: Upload ZAP Scan Reports
