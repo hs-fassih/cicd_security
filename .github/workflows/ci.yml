@@ -253,7 +253,7 @@ jobs:
           
           # Determine port based on branch
           if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
-            APP_PORT=3000
+            APP_PORT=3001
           else
             APP_PORT=8080
           fi
