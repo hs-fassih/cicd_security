@@ -114,16 +114,38 @@ jobs:
       # Step 5: Run Trivy filesystem scan for vulnerabilities and secrets
       - name: Run Trivy SCA (filesystem mode)
         run: |
+          set -e  # Exit immediately if a command exits with a non-zero status
+          
           # Install Trivy
+          echo "📦 Installing Trivy..."
           sudo apt-get install wget apt-transport-https gnupg lsb-release -y
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
           echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
           sudo apt-get update
           sudo apt-get install trivy -y
           
-          # Run Trivy filesystem scan
+          echo "🔍 Running Trivy filesystem scan..."
+          echo "Current directory: $(pwd)"
+          echo "Files to scan:"
+          ls -la
+          
+          # Run Trivy filesystem scan with enhanced detection
+          # Scan all security issues: vulnerabilities, secrets, and misconfigurations
           # On test branch, continue even if vulnerabilities found (expected)
-          trivy fs --security-checks vuln,secret --exit-code 1 --severity HIGH,CRITICAL .
+          trivy fs \
+            --security-checks vuln,secret,config \
+            --scanners vuln,secret \
+            --exit-code 1 \
+            --severity HIGH,CRITICAL \
+            --format table \
+            . || TRIVY_EXIT_CODE=$?
+          
+          if [ -n "$TRIVY_EXIT_CODE" ] && [ $TRIVY_EXIT_CODE -ne 0 ]; then
+            echo "❌ Trivy found HIGH/CRITICAL vulnerabilities (exit code: $TRIVY_EXIT_CODE)"
+            exit $TRIVY_EXIT_CODE
+          else
+            echo "✅ Trivy scan completed"
+          fi
         env:
           TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
         continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
@@ -131,6 +153,8 @@ jobs:
       # Step 6: Run Semgrep — branch-specific rulesets, fail only on ERROR severity
       - name: Run Semgrep rulesets
         run: |
+          set -e  # Exit immediately if a command exits with a non-zero status
+          
           # install semgrep and jq
           python -m pip install --upgrade pip
           python -m pip install semgrep
@@ -139,24 +163,42 @@ jobs:
 
           # Determine rulesets based on branch
           if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
-            echo "Running Semgrep for JavaScript/Node.js (test branch)"
+            echo "🔍 Running Semgrep for JavaScript/Node.js (test branch)"
             RULESETS="p/owasp-top-ten p/javascript p/typescript p/nodejs"
           else
-            echo "Running Semgrep for Python (main branch)"
+            echo "🔍 Running Semgrep for Python (main branch)"
             RULESETS="p/owasp-top-ten p/python"
           fi
 
           # run semgrep with branch-specific rulesets, output JSON
-          semgrep --config $RULESETS --json -o semgrep-report.json .
+          echo "Running Semgrep with rulesets: $RULESETS"
+          if ! semgrep --config $RULESETS --json -o semgrep-report.json . ; then
+            echo "❌ Semgrep scan failed with exit code $?"
+            if [ -f semgrep-report.json ]; then
+              echo "Partial results:"
+              cat semgrep-report.json
+            fi
+            exit 1
+          fi
+
+          # Validate report exists and has content
+          if [ ! -s "semgrep-report.json" ]; then
+            echo "❌ Semgrep report is empty or missing"
+            exit 1
+          fi
 
           # count ERROR severity findings and fail if any
           ERR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' semgrep-report.json)
-          echo "Semgrep ERROR findings: $ERR_COUNT"
+          TOTAL_COUNT=$(jq '[.results[]] | length' semgrep-report.json)
+          echo "📊 Semgrep Results: $TOTAL_COUNT total findings, $ERR_COUNT ERROR severity"
+          
           if [ "$ERR_COUNT" -gt 0 ]; then
-            echo "Failing CI due to Semgrep ERROR findings"
+            echo "❌ Failing CI due to Semgrep ERROR findings"
             jq '.results[] | select(.extra.severity == "ERROR")' semgrep-report.json
             exit 1
           fi
+          
+          echo "✅ Semgrep scan completed successfully"
         continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 7: Run SonarQube Analysis (branch-specific language configuration)
@@ -175,42 +217,61 @@ jobs:
       # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
         run: |
+          set -e  # Exit immediately if a command exits with a non-zero status
+          
           # Install jq for JSON parsing
           sudo apt-get install -y jq
 
           # Wait for SonarQube analysis to complete
+          echo "⏳ Waiting for SonarQube analysis to complete..."
           for i in {1..30}; do
             TASK_STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-              "https://sonarcloud.io/api/ce/activity?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.tasks[0].status')
+              "https://sonarcloud.io/api/ce/activity?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.tasks[0].status // "PENDING"')
             
             if [ "$TASK_STATUS" = "SUCCESS" ]; then
-              echo "SonarQube analysis completed successfully"
+              echo "✅ SonarQube analysis completed successfully"
               break
             elif [ "$TASK_STATUS" = "FAILED" ]; then
-              echo "SonarQube analysis failed"
+              echo "❌ SonarQube analysis failed"
               exit 1
             fi
             
             if [ $i -lt 30 ]; then
-              echo "Waiting for analysis... (attempt $i/30)"
+              echo "⏳ Waiting for analysis... (attempt $i/30) - Status: $TASK_STATUS"
               sleep 10
+            else
+              echo "❌ Timeout waiting for SonarQube analysis"
+              exit 1
             fi
           done
 
           # Get quality gate status
           QUALITY_GATE=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.projectStatus.status')
+            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${{ secrets.SONAR_PROJECT_KEY }}" | jq -r '.projectStatus.status // "NONE"')
 
-          # Get issues by severity
+          # Get issues by severity with proper null handling (use 0 if null)
           CRITICAL_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=CRITICAL&resolved=false" | jq '.total')
+            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=CRITICAL&resolved=false" | jq '.total // 0')
           
           HIGH_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=HIGH&resolved=false" | jq '.total')
+            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=HIGH&resolved=false" | jq '.total // 0')
+          
+          MEDIUM_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
+            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=MEDIUM&resolved=false" | jq '.total // 0')
 
-          echo "Quality Gate Status: $QUALITY_GATE"
-          echo "Critical Issues: $CRITICAL_ISSUES"
-          echo "High Issues: $HIGH_ISSUES"
+          echo "📊 SonarQube Quality Gate Results:"
+          echo "   Quality Gate Status: $QUALITY_GATE"
+          echo "   Critical Issues: $CRITICAL_ISSUES"
+          echo "   High Issues: $HIGH_ISSUES"
+          echo "   Medium Issues: $MEDIUM_ISSUES (informational)"
+
+          # Validate we got actual numbers
+          if ! [[ "$CRITICAL_ISSUES" =~ ^[0-9]+$ ]] || ! [[ "$HIGH_ISSUES" =~ ^[0-9]+$ ]]; then
+            echo "⚠️  Warning: Failed to get valid issue counts from SonarQube API"
+            echo "   CRITICAL_ISSUES: $CRITICAL_ISSUES"
+            echo "   HIGH_ISSUES: $HIGH_ISSUES"
+            exit 1
+          fi
 
           # Fail only if there are HIGH or CRITICAL severity issues
           if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
@@ -242,8 +303,30 @@ jobs:
       # Step 11: Trivy image scan (allows failures on test branch - expects vulnerabilities)
       - name: Run Trivy image scan
         run: |
-          echo "Scanning Docker image: $IMAGE_TAG"
-          trivy image --security-checks vuln,config --exit-code 1 --severity HIGH,CRITICAL $IMAGE_TAG
+          set -e  # Exit immediately if a command exits with a non-zero status
+          
+          echo "🔍 Scanning Docker image: $IMAGE_TAG"
+          
+          # Run comprehensive image scan
+          trivy image \
+            --security-checks vuln,config,secret \
+            --scanners vuln \
+            --exit-code 1 \
+            --severity HIGH,CRITICAL \
+            --format table \
+            $IMAGE_TAG || TRIVY_IMAGE_EXIT_CODE=$?
+          
+          if [ -n "$TRIVY_IMAGE_EXIT_CODE" ] && [ $TRIVY_IMAGE_EXIT_CODE -ne 0 ]; then
+            echo "❌ Trivy image scan found HIGH/CRITICAL vulnerabilities (exit code: $TRIVY_IMAGE_EXIT_CODE)"
+            
+            # Show detailed vulnerability report
+            echo "📊 Detailed vulnerability report:"
+            trivy image --severity HIGH,CRITICAL --format json $IMAGE_TAG | jq '.Results[] | select(.Vulnerabilities) | {Target: .Target, Vulnerabilities: [.Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity}]}'
+            
+            exit $TRIVY_IMAGE_EXIT_CODE
+          else
+            echo "✅ Trivy image scan completed"
+          fi
         continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 12: Push Docker image (only on clean scan or test branch)
