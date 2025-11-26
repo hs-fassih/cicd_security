@@ -128,7 +128,7 @@ jobs:
           TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
         continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
-      # Step 6: Run Semgrep (python + owasp-top-ten) — fail only on ERROR severity
+      # Step 6: Run Semgrep — branch-specific rulesets, fail only on ERROR severity
       - name: Run Semgrep rulesets
         run: |
           # install semgrep and jq
@@ -137,8 +137,17 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y jq
 
-          # run semgrep with built-in rulesets, output JSON
-          semgrep --config p/owasp-top-ten --config p/python --json -o semgrep-report.json .
+          # Determine rulesets based on branch
+          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+            echo "Running Semgrep for JavaScript/Node.js (test branch)"
+            RULESETS="p/owasp-top-ten p/javascript p/typescript p/nodejs"
+          else
+            echo "Running Semgrep for Python (main branch)"
+            RULESETS="p/owasp-top-ten p/python"
+          fi
+
+          # run semgrep with branch-specific rulesets, output JSON
+          semgrep --config $RULESETS --json -o semgrep-report.json .
 
           # count ERROR severity findings and fail if any
           ERR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' semgrep-report.json)
@@ -148,8 +157,9 @@ jobs:
             jq '.results[] | select(.extra.severity == "ERROR")' semgrep-report.json
             exit 1
           fi
+        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
-      # Step 7: Run SonarQube Analysis
+      # Step 7: Run SonarQube Analysis (branch-specific language configuration)
       - name: Run SonarQube analysis
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
@@ -160,6 +170,7 @@ jobs:
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
+            ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' && '-Dsonar.language=js -Dsonar.javascript.node.maxspace=4096 -Dsonar.exclusions=**/node_modules/**,**/__pycache__/**,**/*.pyc,.pytest_cache/**,instance/**,tests/**' || '-Dsonar.language=py -Dsonar.python.version=3.13 -Dsonar.exclusions=tests/**,**/__pycache__/**,**/*.pyc,.pytest_cache/**,instance/**,node_modules/**,juice-shop/**' }}
 
       # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
@@ -210,6 +221,7 @@ jobs:
           fi
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 9: Login to GitHub Container Registry
       - name: Login to GitHub Container Registry
