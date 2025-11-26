@@ -130,7 +130,6 @@ jobs:
 
       # Step 6: Run Semgrep (python + owasp-top-ten) — fail only on ERROR severity
       - name: Run Semgrep rulesets
-        if: github.ref == 'refs/heads/main'
         run: |
           # install semgrep and jq
           python -m pip install --upgrade pip
@@ -150,9 +149,8 @@ jobs:
             exit 1
           fi
 
-      # Step 7: Run SonarQube Analysis (only on main branch)
+      # Step 7: Run SonarQube Analysis
       - name: Run SonarQube analysis
-        if: github.ref == 'refs/heads/main'
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -163,9 +161,8 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
 
-      # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only) - only on main branch
+      # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
-        if: github.ref == 'refs/heads/main'
         run: |
           # Install jq for JSON parsing
           sudo apt-get install -y jq
@@ -319,7 +316,7 @@ jobs:
       # Step 16: Upload ZAP Reports as Artifacts
       - name: Upload ZAP Scan Reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: zap-scan-reports
           path: |
