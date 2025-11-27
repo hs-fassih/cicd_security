@@ -12,7 +12,7 @@ on:
       - test/juice-shop-pipeline
 
 # Global default permissions (least privilege principle)
-# Each job can override these if needed
+# Each job can override these if neededai
 permissions:
   contents: read  # Allow reading repository contents
 
