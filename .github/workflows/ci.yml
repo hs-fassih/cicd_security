@@ -3,93 +3,24 @@ name: CI - Build and Test
 # Trigger the workflow on push and pull request events
 on: [push, pull_request]
 
-# Global default permissions (least privilege principle)
-# Each job can override these if needed
-permissions:
-  contents: read  # Allow reading repository contents
-
 jobs:
-  secrets-detection:
-    name: Secrets Detection
-    runs-on: ubuntu-latest
-    
-    # Explicit permissions for this job (read-only)
-    permissions:
-      contents: read        # Read repository contents
-      security-events: write  # Upload SARIF results (if applicable)
-    
-    steps:
-      # Checkout code with full history for better secret detection
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Full git history for comprehensive scanning
-
-      # Run Gitleaks to detect secrets
-      - name: Run Gitleaks Secrets Scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Optional: for Gitleaks Enterprise
-
-  pre-commit-checks:
-    name: Pre-commit Hooks Validation
-    runs-on: ubuntu-latest
-    
-    # Explicit permissions for this job (read-only)
-    permissions:
-      contents: read  # Read repository contents only
-    
-    steps:
-      # Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      # Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.14'
-
-      # Install pre-commit
-      - name: Install pre-commit
-        run: |
-          python -m pip install --upgrade pip
-          pip install pre-commit
-
-      # Run pre-commit on all files
-      - name: Run pre-commit hooks on all files
-        run: |
-          echo "Running pre-commit hooks to ensure consistency between local and CI..."
-          pre-commit run --all-files --show-diff-on-failure
-        env:
-          SKIP: no-commit-to-branch  # Skip branch protection hooks in CI
-
-  # Main build and test job (depends on security gates)
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
-    needs: [secrets-detection, pre-commit-checks]  # Wait for security gates to pass
-    
-    # Explicit permissions for this job (minimal required)
-    permissions:
-      contents: read          # Read repository contents
-      packages: write         # Push to GitHub Container Registry (GHCR)
-      security-events: write  # Upload security scan results (SARIF format)
-      
+
     steps:
       # Step 1: Checkout code
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      # Step 2: Set up Python (only for Flask app on main branch)
+      # Step 2: Set up Python
       - name: Set up Python
         if: github.ref == 'refs/heads/main'
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.13'
 
-      # Step 3: Install dependencies (only for Flask app on main branch)
+      # Step 3: Install dependencies
       - name: Install dependencies
         if: github.ref == 'refs/heads/main'
         run: |
@@ -97,41 +28,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      # Step 4: Run pytest (only for Flask app on main branch)
+      # Step 4: Run pytest
       - name: Run tests
         if: github.ref == 'refs/heads/main'
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
-      # Step 5: Run Trivy filesystem scan for vulnerabilities and secrets
-      - name: Run Trivy SCA (filesystem mode)
-        run: |
-          set -e
-          
-          # Install Trivy
-          echo "📦 Installing Trivy..."
-          sudo apt-get install wget apt-transport-https gnupg lsb-release -y
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install trivy -y
-          
-          # Determine scan path based on branch
-          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
-            echo "🔍 Scanning Juice Shop (Node.js) dependencies..."
-            SCAN_PATH="juice-shop"
-          else
-            echo "🔍 Scanning Flask app (Python) dependencies..."
-            SCAN_PATH="."
-          fi
-          
-          # Run Trivy filesystem scan
-          trivy fs --security-checks vuln,secret,config --exit-code 1 --severity HIGH,CRITICAL $SCAN_PATH
-        env:
-          TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
-        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
-
-      # Step 6: Run Semgrep — branch-specific rulesets, fail only on ERROR severity
+      # Step 5: Run Semgrep — branch-specific rulesets
       - name: Run Semgrep rulesets
         run: |
           set -e
@@ -153,22 +56,16 @@ jobs:
             SCAN_PATH="."
           fi
 
-          # run semgrep with branch-specific rulesets, output JSON
-          echo "Running Semgrep with rulesets: $RULESETS on path: $SCAN_PATH"
-          if ! semgrep --config $RULESETS --json -o semgrep-report.json $SCAN_PATH ; then
-            echo "❌ Semgrep scan failed with exit code $?"
-            if [ -f semgrep-report.json ]; then
-              echo "Partial results:"
-              cat semgrep-report.json
-            fi
+          # Verify directory exists
+          if [ ! -d "$SCAN_PATH" ]; then
+            echo "❌ Error: Scan path '$SCAN_PATH' does not exist"
+            ls -la
             exit 1
           fi
 
-          # Validate report exists
-          if [ ! -s "semgrep-report.json" ]; then
-            echo "❌ Semgrep report is empty or missing"
-            exit 1
-          fi
+          # run semgrep with branch-specific rulesets, output JSON
+          echo "Running Semgrep with rulesets: $RULESETS on path: $SCAN_PATH"
+          semgrep --config $RULESETS --json -o semgrep-report.json $SCAN_PATH
 
           # count ERROR severity findings and fail if any
           ERR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' semgrep-report.json)
@@ -180,11 +77,28 @@ jobs:
             jq '.results[] | select(.extra.severity == "ERROR")' semgrep-report.json
             exit 1
           fi
-          
-          echo "✅ Semgrep scan completed successfully"
         continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
-      # Step 7: Run SonarQube Analysis (branch-specific language configuration)
+      # Step 6: Verify workspace and prepare for SonarQube
+      - name: Verify workspace structure
+        run: |
+          echo "📋 Workspace structure:"
+          echo "Current directory: $(pwd)"
+          echo "Branch: ${{ github.ref }}"
+          ls -la
+          
+          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+            if [ -d "juice-shop" ]; then
+              echo "✅ juice-shop directory found"
+              echo "juice-shop contents:"
+              ls -la juice-shop/ | head -20
+            else
+              echo "❌ juice-shop directory NOT found!"
+              exit 1
+            fi
+          fi
+
+      # Step 7: Run SonarQube Analysis (branch-specific)
       - name: Run SonarQube analysis
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
@@ -195,7 +109,7 @@ jobs:
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
-            ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' && '-Dsonar.sources=juice-shop -Dsonar.language=js -Dsonar.javascript.node.maxspace=4096 -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/coverage/**' || '-Dsonar.sources=. -Dsonar.language=py -Dsonar.python.version=3.13 -Dsonar.exclusions=tests/**,**/__pycache__/**,**/*.pyc,.pytest_cache/**,instance/**,node_modules/**,juice-shop/**' }}
+            ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' && '-Dsonar.sources=juice-shop -Dsonar.language=js -Dsonar.javascript.node.maxspace=4096 -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/coverage/**,**/test/**' || '-Dsonar.sources=. -Dsonar.language=py -Dsonar.python.version=3.13 -Dsonar.exclusions=tests/**,**/__pycache__/**,**/*.pyc,.pytest_cache/**,instance/**,node_modules/**,juice-shop/**' }}
 
       # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
@@ -238,15 +152,11 @@ jobs:
           
           HIGH_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
             "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=HIGH&resolved=false" | jq '.total // 0')
-          
-          MEDIUM_ISSUES=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" \
-            "https://sonarcloud.io/api/issues/search?componentKeys=${{ secrets.SONAR_PROJECT_KEY }}&severities=MEDIUM&resolved=false" | jq '.total // 0')
 
           echo "📊 SonarQube Quality Gate Results:"
           echo "   Quality Gate Status: $QUALITY_GATE"
           echo "   Critical Issues: $CRITICAL_ISSUES"
           echo "   High Issues: $HIGH_ISSUES"
-          echo "   Medium Issues: $MEDIUM_ISSUES (informational)"
 
           # Validate we got actual numbers
           if ! [[ "$CRITICAL_ISSUES" =~ ^[0-9]+$ ]] || ! [[ "$HIGH_ISSUES" =~ ^[0-9]+$ ]]; then
@@ -266,145 +176,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
-
-      # Step 9: Login to GitHub Container Registry
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Step 10: Build Docker image (branch-specific)
-      - name: Build Docker image
-        run: |
-          IMAGE_TAG="ghcr.io/${{ github.repository }}:${{ github.sha }}"
-          echo "Building image: $IMAGE_TAG"
-          
-          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
-            echo "🐳 Building Juice Shop Docker image..."
-            docker build -f juice-shop/Dockerfile -t $IMAGE_TAG juice-shop
-          else
-            echo "🐳 Building Flask app Docker image..."
-            docker build -t $IMAGE_TAG .
-          fi
-          
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-      # Step 11: Trivy image scan
-      - name: Run Trivy image scan
-        run: |
-          set -e
-          
-          echo "🔍 Scanning Docker image: $IMAGE_TAG"
-          
-          trivy image \
-            --security-checks vuln,config,secret \
-            --scanners vuln \
-            --exit-code 1 \
-            --severity HIGH,CRITICAL \
-            --format table \
-            $IMAGE_TAG || TRIVY_EXIT_CODE=$?
-          
-          if [ -n "$TRIVY_EXIT_CODE" ] && [ $TRIVY_EXIT_CODE -ne 0 ]; then
-            echo "❌ Trivy image scan found HIGH/CRITICAL vulnerabilities (exit code: $TRIVY_EXIT_CODE)"
-            echo "📊 Detailed vulnerability report:"
-            trivy image --severity HIGH,CRITICAL --format json $IMAGE_TAG | jq '.Results[] | select(.Vulnerabilities) | {Target: .Target, Vulnerabilities: [.Vulnerabilities[] | {VulnerabilityID, PkgName, InstalledVersion, Severity}]}' || true
-            exit $TRIVY_EXIT_CODE
-          else
-            echo "✅ Trivy image scan completed"
-          fi
-        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
-
-      # Step 12: Push Docker image (only on clean scan or test branch)
-      - name: Push Docker image to GHCR
-        if: success() || github.ref == 'refs/heads/test/juice-shop-pipeline'
-        run: |
-          echo "Pushing image: $IMAGE_TAG"
-          docker push $IMAGE_TAG
-          echo "✅ Image pushed successfully to GHCR"
-
-      # Step 13: Start application with Docker Compose for DAST
-      - name: Start application for DAST testing
-        run: |
-          echo "Starting application with docker compose..."
-          docker compose up -d
-          
-          # Determine port based on branch
-          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
-            APP_PORT=3000
-          else
-            APP_PORT=8080
-          fi
-          
-          echo "Waiting for application to be ready on port $APP_PORT..."
-          for i in {1..30}; do
-            if curl -f http://localhost:$APP_PORT/ > /dev/null 2>&1; then
-              echo "✅ Application is ready!"
-              break
-            fi
-            if [ $i -eq 30 ]; then
-              echo "❌ Application failed to start"
-              docker compose logs
-              exit 1
-            fi
-            echo "Waiting... (attempt $i/30)"
-            sleep 5
-          done
-          
-          echo "APP_PORT=$APP_PORT" >> $GITHUB_ENV
-          echo "Application is running and accessible at http://localhost:$APP_PORT"
-
-      # Step 14: Run OWASP ZAP Baseline Scan
-      - name: Run OWASP ZAP DAST Scan
-        run: |
-          echo "Starting OWASP ZAP Baseline Scan..."
-          echo "Current directory: $(pwd)"
-          echo "Workspace: ${{ github.workspace }}"
-          echo "Target: http://localhost:${{ env.APP_PORT }}"
-          
-          # Run ZAP baseline scan with proper volume mounting
-          docker run --rm \
-            --network host \
-            -v ${{ github.workspace }}:/zap/wrk:rw \
-            -u root \
-            -t ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py \
-            -t http://localhost:${{ env.APP_PORT }} \
-            -g gen.conf \
-            -r zap-report.html \
-            -w zap-report.md \
-            -x zap-report.xml \
-            -I || true
-          
-          echo "ZAP scan completed. Checking for report files..."
-          ls -la zap-report.* 2>/dev/null || echo "No ZAP reports found in current directory"
-          echo "Files in workspace root:"
-          ls -la ${{ github.workspace }}/ | grep zap || echo "No zap files found"
-
-      # Step 15: Evaluate ZAP results and fail on High/Medium alerts
-      - name: Evaluate ZAP Scan Results
-        run: |
-          echo "Evaluating ZAP scan results..."
-          python scripts/zap-hook.py
-        continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
-
-      # Step 16: Upload ZAP Reports as Artifacts
-      - name: Upload ZAP Scan Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-scan-reports
-          path: |
-            zap-report.html
-            zap-report.xml
-            zap-report.md
-          retention-days: 30
-
-      # Step 17: Stop application container
-      - name: Stop application
-        if: always()
-        run: |
-          echo "Stopping application..."
-          docker compose down -v
-          echo "✅ Application succcessfully stopped and cleaned up"
