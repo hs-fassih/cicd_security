@@ -67,3 +67,5 @@ credentials.json
 *.cert
 id_rsa*
 .ssh/
+
+/juice-shop/
