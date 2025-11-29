@@ -1,0 +1,3013 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSecOps CI/CD Security Pipeline - Project Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f9;
+            display: flex;
+        }
+
+        .hero {
+            background: linear-gradient(to right, #007bff, #0056b3);
+            color: #fff;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, #007bff, #0056b3);
+            color: #fff;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+            transform: scale(1.05);
+        }
+
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            flex: 1;
+        }
+
+        h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            font-size: 1.8em;
+            margin-top: 50px;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: #0056b3;
+            font-size: 1.4em;
+            margin-top: 40px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1em;
+            color: #444;
+        }
+
+        ul,
+        ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .footer {
+            font-size: 0.9em;
+            color: #fff;
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            background: linear-gradient(to right, #007bff, #0056b3);
+        }
+
+        .footer a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .footer a:hover {
+            text-decoration: none;
+        }
+
+        .footer .social-icons {
+            margin-top: 10px;
+        }
+
+        .footer .social-icons a {
+            color: #fff;
+            margin: 0 10px;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .footer .social-icons a:hover {
+            color: #ffdd57;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                margin-left: 220px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero">
+        <h1>DevSecOps CI/CD Security Pipeline</h1>
+        <p>Integrating Security Throughout the Software Development Lifecycle</p>
+    </div>
+
+    <div class="sidebar">
+        <h2>Table of Contents</h2>
+        <a href="#objectives"><i class="fas fa-bullseye"></i> Objectives and Problem Statement</a>
+        <a href="#solution"><i class="fas fa-cogs"></i> Proposed Solution & Architecture</a>
+        <a href="#methodology"><i class="fas fa-project-diagram"></i> Methodology & SDLC Coverage</a>
+        <a href="#threat-modeling"><i class="fas fa-shield-alt"></i> Threat Modeling & Risk Analysis</a>
+        <!-- <a href="#threat-identification"><i class="fas fa-exclamation-triangle"></i> Threat Identification</a> -->
+        <!-- <a href="#risk-assessment"><i class="fas fa-balance-scale"></i> Risk Assessment & Mitigation</a> -->
+        <a href="#code-implementation"><i class="fas fa-code"></i> Code Implementation & Security Practices</a>
+        <!-- <a href="#secure-coding"><i class="fas fa-lock"></i> Secure Coding & Best Practices</a> -->
+        <!-- <a href="#functionality"><i class="fas fa-check-circle"></i> Functionality & Correctness</a> -->
+        <!-- <a href="#code-quality"><i class="fas fa-file-alt"></i> Code Quality & Documentation</a> -->
+        <!-- <a href="#tools"><i class="fas fa-tools"></i> Use of Tools & Libraries</a> -->
+        <!-- <a href="#version-control"><i class="fas fa-code-branch"></i> Version Control System</a> -->
+        <a href="#testing"><i class="fas fa-vial"></i> Testing & Validation</a>
+        <a href="#team-contribution"><i class="fas fa-tasks"></i> Team Contribution</a>
+        <!-- <a href="#security-testing"><i class="fas fa-user-shield"></i> Security Testing and Test Cases</a> -->
+        <!-- <a href="#functional-testing"><i class="fas fa-tasks"></i> Functional Testing</a> -->
+        <!-- <a href="#sast"><i class="fas fa-search"></i> SAST Implementation</a> -->
+        <a href="#conclusion"><i class="fas fa-flag-checkered"></i> Conclusion</a>
+        <a href="#references"><i class="fas fa-book"></i> References</a>
+    </div>
+
+    <div class="content">
+        <h2 id="objectives">Objectives and Problem Statement</h2>
+
+        <h3>1.1 Problem Statement</h3>
+        <p>In modern software development, security vulnerabilities introduced during the development lifecycle pose
+            significant risks to organizations and end-users. Traditional security approaches that focus on testing only
+            at the end of the development cycle (often called "shift-right") are insufficient and costly. Security
+            issues discovered late in the development process are exponentially more expensive to fix and can lead to
+            data breaches, financial losses, and reputational damage.</p>
+
+        <p>Key challenges in current software development practices include:</p>
+        <ul>
+            <li>Late Security Detection: Security vulnerabilities are often discovered during production or after
+                deployment, when remediation costs are highest.</li>
+            <li>Lack of Automation: Manual security reviews and testing are time-consuming, inconsistent, and prone to
+                human error.</li>
+            <li>Limited Security Integration: Security is frequently treated as a separate phase rather than being
+                integrated throughout the Software Development Lifecycle (SDLC).</li>
+            <li>Insufficient Validation: Without proper testing against real-world vulnerable applications, security
+                tools may provide false confidence.</li>
+            <li>Dependency Vulnerabilities: Third-party libraries and dependencies introduce hidden security risks that
+                often go undetected.</li>
+            <li>Secret Exposure: Hardcoded credentials, API keys, and sensitive information accidentally committed to
+                version control systems.</li>
+        </ul>
+
+        <h3>1.2 Project Objectives</h3>
+        <p>This project aims to implement a comprehensive DevSecOps CI/CD security pipeline that addresses the
+            aforementioned challenges by "shifting security left" – integrating security practices early and throughout
+            the entire development lifecycle. The primary objectives are:</p>
+
+        <h3>1.2.1 Primary Objectives</h3>
+        <ul>
+            <li>Implement Multi-Layered Security Scanning: Deploy multiple security tools covering different aspects of
+                application security including Static Application Security Testing (SAST), Software Composition Analysis
+                (SCA), Dynamic Application Security Testing (DAST), and secrets detection.</li>
+            <li>Automate Security Gates: Create automated security checkpoints in the CI/CD pipeline that prevent
+                vulnerable code from progressing to production environments.</li>
+            <li>Enable Shift-Left Security: Integrate pre-commit hooks and early-stage security checks to catch
+                vulnerabilities before code is committed to the repository.</li>
+            <li>Validate Security Tool Effectiveness: Use a dual-branch approach with both a clean Flask application
+                (main branch) and the intentionally vulnerable OWASP Juice Shop application (test branch) to validate
+                that security tools accurately detect real vulnerabilities.</li>
+            <li>Establish Best Practices: Implement industry-standard security practices including least privilege
+                permissions, code ownership, automated dependency updates, and comprehensive documentation.</li>
+        </ul>
+
+        <h3>1.2.2 Specific Technical Goals</h3>
+        <ul>
+            <li>Detect and prevent hardcoded secrets from entering the codebase using Gitleaks</li>
+            <li>Identify code-level vulnerabilities through SAST tools (Semgrep and SonarQube)</li>
+            <li>Scan dependencies for known vulnerabilities using Trivy SCA</li>
+            <li>Validate runtime security through DAST using OWASP ZAP</li>
+            <li>Ensure container image security through Trivy image scanning</li>
+            <li>Automate security policy enforcement through GitHub Actions workflows</li>
+            <li>Maintain code quality standards through automated code formatting and linting</li>
+            <li>Document security testing processes and results comprehensively</li>
+        </ul>
+
+        <h3>1.3 Expected Outcomes</h3>
+        <p>By achieving these objectives, the project delivers:</p>
+        <ul>
+            <li>A fully functional DevSecOps pipeline that automatically scans code for security vulnerabilities at
+                multiple stages</li>
+            <li>Reduced time to detect and remediate security issues through early detection</li>
+            <li>Improved code quality through automated enforcement of security and coding standards</li>
+            <li>Validated security tool configuration through testing against known vulnerable applications</li>
+            <li>Comprehensive documentation serving as a reference implementation for DevSecOps practices</li>
+            <li>Measurable security improvements through automated reporting and artifact retention</li>
+        </ul>
+
+        <h3>1.4 Project Scope</h3>
+        <p>The project encompasses the complete security integration for a web application development workflow,
+            including:</p>
+        <ul>
+            <li>In Scope: Security scanning, automation, validation, documentation, CI/CD integration, container
+                security, dependency management, and secrets detection</li>
+            <li>Out of Scope: Production deployment, infrastructure security beyond container level, network security
+                configurations, and penetration testing beyond automated DAST</li>
+        </ul>
+
+        <h2 id="solution">2. Proposed Solution & Architecture</h2>
+
+        <h3>2.1 Solution Overview</h3>
+        <p>The proposed solution implements a comprehensive DevSecOps CI/CD security pipeline that integrates multiple
+            security scanning tools and practices throughout the software development lifecycle. The architecture
+            follows a "defense-in-depth" approach with multiple layers of security controls, ensuring that
+            vulnerabilities are detected and prevented at various stages of development.</p>
+
+        <p>The solution is built around two main components:</p>
+        <ul>
+            <li>Main Branch (Flask CRUD Application): A production-grade Flask web application serving as the baseline
+                for security practices. This application implements secure coding principles and serves as the primary
+                development branch where all security gates must pass.</li>
+            <li>Test Branch (OWASP Juice Shop): An intentionally vulnerable Node.js application used to validate the
+                effectiveness of security tools. This branch ensures that the security pipeline can actually detect
+                real-world vulnerabilities.</li>
+        </ul>
+
+        <h3>2.2 Architecture Components</h3>
+
+        <h3>2.2.1 Local Development Environment</h3>
+        <p>The security pipeline begins at the developer's workstation with pre-commit hooks that perform initial
+            security checks before code enters the version control system:</p>
+        <ul>
+            <li>Black Code Formatter: Automatically formats Python code to PEP 8 standards, ensuring consistent code
+                style</li>
+            <li>Gitleaks Pre-commit Hook: Scans for hardcoded secrets, API keys, passwords, and tokens before commits
+            </li>
+            <li>Configuration File: .pre-commit-config.yaml defines hook behavior and versions</li>
+        </ul>
+        <div class="image-placeholder">
+            <img src="1placeholder.jpg" alt="Local Development Environment Diagram"
+                style="width:450px; max-width:100%; height:auto; display:block; margin:auto;">
+        </div>
+
+
+        <h3>2.2.2 Version Control & Repository Management</h3>
+        <p>GitHub serves as the central version control system with several security enhancements:</p>
+        <ul>
+            <li>Branch Protection: Two primary branches (main and test/juice-shop-pipeline) with distinct security
+                requirements</li>
+            <li>CODEOWNERS File: Enforces mandatory code review by @hs-fassih for all changes, especially
+                security-critical files</li>
+            <li>Dependabot: Automated dependency updates for Python (pip), Docker images, and GitHub Actions</li>
+            <li>Repository Secrets: Secure storage of SONAR_TOKEN, SONAR_PROJECT_KEY, and GITHUB_TOKEN</li>
+        </ul>
+
+        <h3>2.2.3 CI/CD Pipeline Architecture</h3>
+        <p>The GitHub Actions workflow (.github/workflows/ci.yml) implements a multi-stage security pipeline with the
+            following structure:</p>
+        <div class="image-placeholder">
+            <img src="2placeholder.png" alt="Local Development Environment Diagram"
+                style="width:1000px; max-width:100%; height:auto; display:block; margin:auto;">
+        </div>
+
+
+        <h3>2.3 Security Scanning Layers</h3>
+
+        <h3>2.3.1 Layer 1: Secrets Detection</h3>
+        <p>Tool: Gitleaks v8.29.1</p>
+        <p>Purpose: Prevents hardcoded secrets from entering the codebase through both pre-commit hooks (local) and
+            CI/CD scanning (remote).</p>
+        <p>Configuration: Custom .gitleaks.toml file with:</p>
+        <ul>
+            <li>Allowlisted paths for example/template files</li>
+            <li>Regex patterns for test data and placeholders</li>
+            <li>Custom rules for Flask SECRET_KEY detection</li>
+            <li>Database connection string patterns</li>
+        </ul>
+        <p>Execution: Runs with full git history (fetch-depth: 0) for comprehensive scanning.</p>
+
+        <h3>2.3.2 Layer 2: Static Application Security Testing (SAST)</h3>
+        <p>Tools: Semgrep (Community Rules) and SonarQube (SonarCloud)</p>
+        <p>Semgrep Configuration:</p>
+        <ul>
+            <li>Main Branch Rulesets: p/owasp-top-ten, p/python</li>
+            <li>Test Branch Rulesets: p/owasp-top-ten, p/javascript, p/typescript, p/nodejs</li>
+            <li>Severity Threshold: Fails only on ERROR severity findings</li>
+            <li>Output: JSON format with detailed finding reports</li>
+        </ul>
+        <p>SonarQube Configuration:</p>
+        <ul>
+            <li>Main Branch: Python analysis (sonar.language=py, Python 3.13)</li>
+            <li>Test Branch: JavaScript analysis (sonar.language=js, Node.js memory: 4096MB)</li>
+            <li>Quality Gate: Fails on HIGH or CRITICAL severity issues only</li>
+            <li>Integration: SonarCloud hosted instance with API-based quality gate verification</li>
+            <li>Exclusions: Test files, cache directories, node_modules, build artifacts</li>
+        </ul>
+
+        <h3>2.3.3 Layer 3: Software Composition Analysis (SCA)</h3>
+        <p>Tool: Trivy (Filesystem Mode)</p>
+        <p>Purpose: Scans project dependencies for known vulnerabilities (CVEs) and additional secrets.</p>
+        <p>Configuration:</p>
+        <ul>
+            <li>Security checks: vulnerabilities, secrets, and misconfigurations</li>
+            <li>Severity threshold: HIGH and CRITICAL only</li>
+            <li>Database: ghcr.io/aquasecurity/trivy-db</li>
+            <li>Scanners: vulnerability and secret detection</li>
+            <li>Exit code: 1 (fails pipeline on findings)</li>
+        </ul>
+
+        <h3>2.3.4 Layer 4: Container Image Security</h3>
+        <p>Tool: Trivy (Image Mode)</p>
+        <p>Purpose: Scans built Docker images for OS-level vulnerabilities and configuration issues.</p>
+        <p>Workflow:</p>
+        <ul>
+            <li>Docker image built from project Dockerfile</li>
+            <li>Image tagged with GitHub SHA for traceability</li>
+            <li>Trivy scans image layers for vulnerabilities</li>
+            <li>Detailed JSON report generated showing CVEs, packages, and versions</li>
+            <li>Only clean images are pushed to GitHub Container Registry (GHCR)</li>
+        </ul>
+
+        <h3>2.3.5 Layer 5: Dynamic Application Security Testing (DAST)</h3>
+        <p>Tool: OWASP ZAP Baseline Scan</p>
+        <p>Purpose: Tests the running application for runtime vulnerabilities including XSS, SQLi, CSRF, and other OWASP
+            Top 10 issues.</p>
+        <p>Workflow:</p>
+        <ul>
+            <li>Application started using docker-compose</li>
+            <li>Health check ensures application is responsive (30-second timeout with retries)</li>
+            <li>ZAP baseline scan targets the running application</li>
+            <li>Custom Python script (scripts/zap-hook.py) evaluates results using defusedxml</li>
+            <li>Reports generated in HTML, XML, and Markdown formats</li>
+            <li>Artifacts uploaded for 30-day retention</li>
+        </ul>
+        <p>ZAP Evaluation Criteria (zap-hook.py):</p>
+        <ul>
+            <li>HIGH Severity Alerts: Fail the build</li>
+            <li>MEDIUM Severity Alerts: Pass with warnings</li>
+            <li>LOW/Informational: Pass</li>
+        </ul>
+
+        <h3>2.4 Dual-Branch Validation Strategy</h3>
+
+        <h3>2.4.1 Main Branch: Production Baseline</h3>
+        <p>Application: Flask CRUD Web Application (Python 3.14, SQLite)</p>
+        <p>Features:</p>
+        <ul>
+            <li>User management with Create, Read, Update, Delete operations</li>
+            <li>Input validation and sanitization</li>
+            <li>CSRF protection via Flask-WTF</li>
+            <li>Environment variable management with python-dotenv</li>
+            <li>Custom error handlers (404, 500)</li>
+            <li>Bootstrap responsive UI</li>
+        </ul>
+        <p>Security Expectations: All security gates must pass; pipeline fails on any HIGH/CRITICAL findings.</p>
+
+        <h3>2.4.2 Test Branch: Vulnerability Validation</h3>
+        <p>Application: OWASP Juice Shop v14.x (Node.js, Angular)</p>
+        <p>Purpose: Validate that security tools can detect real vulnerabilities by testing against an intentionally
+            vulnerable application with 100+ known security flaws.</p>
+        <p>Security Expectations: Security tools should detect vulnerabilities but continue-on-error allows pipeline
+            completion for analysis.</p>
+        <p>Branch-Specific Configurations:</p>
+        <ul>
+            <li>JavaScript/TypeScript/Node.js scanning instead of Python</li>
+            <li>Different port mapping (3000 vs 8080)</li>
+            <li>Relaxed failure thresholds to observe tool behavior</li>
+            <li>Source code available in juice-shop/ directory for SAST analysis</li>
+        </ul>
+        <div class="image-placeholder">
+            <img src="3placeholder.png" alt="Local Development Environment Diagram"
+                style="width:950px; max-width:100%; height:auto; display:block; margin:auto;">
+            <img src="4placeholder.png" alt="Local Development Environment Diagram"
+                style="width:950px; max-width:100%; height:auto; display:block; margin:auto;">
+        </div>
+
+
+        <h3>2.5 Technology Stack</h3>
+        <table>
+            <tr>
+                <th>CATEGORY</th>
+                <th>TECHNOLOGY</th>
+                <th>VERSION/DETAILS</th>
+                <th>PURPOSE</th>
+            </tr>
+            <tr>
+                <td>Version Control</td>
+                <td>Git / GitHub</td>
+                <td>-</td>
+                <td>Source code management and CI/CD platform</td>
+            </tr>
+            <tr>
+                <td>CI/CD</td>
+                <td>GitHub Actions</td>
+                <td>ubuntu-latest runners</td>
+                <td>Automated pipeline execution</td>
+            </tr>
+            <tr>
+                <td>Backend (Main)</td>
+                <td>Flask</td>
+                <td>3.1.2</td>
+                <td>Web application framework</td>
+            </tr>
+            <tr>
+                <td>Database (Main)</td>
+                <td>SQLite</td>
+                <td>via Flask-SQLAlchemy 3.1.1</td>
+                <td>Data persistence</td>
+            </tr>
+            <tr>
+                <td>Test App</td>
+                <td>OWASP Juice Shop</td>
+                <td>v14.x</td>
+                <td>Vulnerability validation</td>
+            </tr>
+            <tr>
+                <td>Container</td>
+                <td>Docker</td>
+                <td>-</td>
+                <td>Application containerization</td>
+            </tr>
+            <tr>
+                <td>Registry</td>
+                <td>GHCR</td>
+                <td>ghcr.io</td>
+                <td>Container image storage</td>
+            </tr>
+            <tr>
+                <td>Secrets Detection</td>
+                <td>Gitleaks</td>
+                <td>v8.29.1</td>
+                <td>Prevent secret exposure</td>
+            </tr>
+            <tr>
+                <td>SAST</td>
+                <td>Semgrep</td>
+                <td>Community rulesets</td>
+                <td>Static code analysis</td>
+            </tr>
+            <tr>
+                <td>SAST</td>
+                <td>SonarQube</td>
+                <td>SonarCloud</td>
+                <td>Code quality & security</td>
+            </tr>
+            <tr>
+                <td>SCA</td>
+                <td>Trivy</td>
+                <td>Latest</td>
+                <td>Dependency & image scanning</td>
+            </tr>
+            <tr>
+                <td>DAST</td>
+                <td>OWASP ZAP</td>
+                <td>Stable (ghcr.io)</td>
+                <td>Dynamic security testing</td>
+            </tr>
+            <tr>
+                <td>Code Format</td>
+                <td>Black</td>
+                <td>25.11.0</td>
+                <td>Python code formatter</td>
+            </tr>
+            <tr>
+                <td>Dependencies</td>
+                <td>Dependabot</td>
+                <td>GitHub native</td>
+                <td>Automated updates</td>
+            </tr>
+        </table>
+
+        <h3>2.6 Security Controls Matrix</h3>
+        <table>
+            <tr>
+                <th>SDLC PHASE</th>
+                <th>SECURITY CONTROL</th>
+                <th>TOOL/PRACTICE</th>
+                <th>AUTOMATION LEVEL</th>
+            </tr>
+            <tr>
+                <td>Pre-Commit</td>
+                <td>Code Formatting</td>
+                <td>Black</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Pre-Commit</td>
+                <td>Secrets Detection</td>
+                <td>Gitleaks Hook</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Commit</td>
+                <td>Code Review</td>
+                <td>CODEOWNERS</td>
+                <td>Policy Enforced</td>
+            </tr>
+            <tr>
+                <td>CI - Gate 1</td>
+                <td>Secrets Scanning</td>
+                <td>Gitleaks Action</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>CI - Gate 2</td>
+                <td>Hook Validation</td>
+                <td>Pre-commit CI</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Build</td>
+                <td>Unit Testing</td>
+                <td>Pytest</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Build</td>
+                <td>Dependency Scan</td>
+                <td>Trivy FS</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Build</td>
+                <td>SAST Analysis</td>
+                <td>Semgrep</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Build</td>
+                <td>Code Quality</td>
+                <td>SonarQube</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Package</td>
+                <td>Image Scanning</td>
+                <td>Trivy Image</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Test</td>
+                <td>DAST Scanning</td>
+                <td>OWASP ZAP</td>
+                <td>Fully Automated</td>
+            </tr>
+            <tr>
+                <td>Maintenance</td>
+                <td>Dependency Updates</td>
+                <td>Dependabot</td>
+                <td>Fully Automated</td>
+            </tr>
+        </table>
+
+        <h3>2.7 Data Flow Architecture</h3>
+        <p>The security pipeline implements a sequential data flow with fail-fast mechanisms:</p>
+        <ul>
+            <li>Developer Commit: Code passes local pre-commit hooks → Git repository</li>
+            <li>CI Trigger: Push/PR event → GitHub Actions workflow starts</li>
+            <li>Security Gates: Parallel execution of secrets detection and hook validation → Block if failures</li>
+            <li>Build Phase: Dependencies installed → Unit tests executed → Artifacts created</li>
+            <li>Security Scanning: Sequential execution of Trivy FS → Semgrep → SonarQube → Quality gate verification
+            </li>
+            <li>Containerization: Docker image built → Trivy image scan → Push to GHCR (only on pass)</li>
+            <li>DAST Phase: Application deployed → ZAP scan → Results evaluated → Artifacts uploaded</li>
+            <li>Cleanup: Resources torn down → Workflow completion</li>
+        </ul>
+        <img src="5placeholder.png" alt="Local Development Environment Diagram"
+            style="width:900px; max-width:100%; height:auto; display:block; margin:auto;">
+
+        <h3>2.8 Least Privilege Security Model</h3>
+        <p>The architecture implements least privilege principles throughout:</p>
+        <ul>
+            <li>Global Permissions: contents: read (minimum default)</li>
+            <li>Secrets Detection Job: contents: read, security-events: write (SARIF upload)</li>
+            <li>Pre-commit Job: contents: read only</li>
+            <li>Build Job: contents: read, packages: write (GHCR push), security-events: write</li>
+            <li>Repository Secrets: Stored encrypted, accessed only via ${{ secrets.NAME }}</li>
+            <li>Docker User: Non-root user in containers where applicable</li>
+        </ul>
+
+        <h2 id="methodology">3. Methodology & SDLC Coverage</h2>
+
+        <h3>3.1 Development Approach</h3>
+        <p>This project adopts a DevSecOps methodology that integrates security practices into every phase of the
+            Software Development Lifecycle (SDLC). The approach follows the principle of "shift-left security," where
+            security is not an afterthought but a fundamental consideration from the earliest stages of development.
+            This methodology ensures that security vulnerabilities are identified and addressed when they are least
+            expensive to fix.</p>
+
+        <p>The development approach is characterized by:</p>
+        <ul>
+            <li>Iterative Development: Continuous integration and continuous deployment practices with automated
+                security checks at each iteration</li>
+            <li>Automation-First: Security processes are automated wherever possible to ensure consistency and reduce
+                human error</li>
+            <li>Fail-Fast Principle: Security gates are positioned early in the pipeline to catch issues before they
+                propagate</li>
+            <li>Validation-Driven: Security tool effectiveness is validated using known vulnerable applications (OWASP
+                Juice Shop)</li>
+            <li>Documentation-Centric: All security decisions, configurations, and processes are thoroughly documented
+            </li>
+        </ul>
+
+        <h3>3.2 Security Integration Across SDLC Phases</h3>
+
+        <h3>3.2.1 Phase 1: Requirements & Planning</h3>
+        <p>Security is integrated into the requirements phase through the following activities:</p>
+
+        <p>Security Requirements Identification:</p>
+        <ul>
+            <li>Identification of security objectives (prevent secrets exposure, detect vulnerabilities, ensure code
+                quality)</li>
+            <li>Definition of security tool requirements (SAST, SCA, DAST, secrets detection)</li>
+            <li>Establishment of security thresholds (HIGH/CRITICAL severity blocking)</li>
+            <li>Documentation of compliance requirements (OWASP Top 10 coverage)</li>
+        </ul>
+
+        <p>Threat Modeling Preparation:</p>
+        <ul>
+            <li>Identification of assets to protect (source code, secrets, dependencies, runtime application)</li>
+            <li>Definition of threat actors (malicious insiders, external attackers, automated bots)</li>
+            <li>Selection of threat modeling framework (STRIDE methodology)</li>
+            <li>Planning for risk assessment and mitigation strategies</li>
+        </ul>
+
+        <p>Tool Selection Criteria:</p>
+        <ul>
+            <li>Open-source availability and community support</li>
+            <li>Integration capability with GitHub Actions</li>
+            <li>Accuracy in vulnerability detection (validated via Juice Shop)</li>
+            <li>Minimal false positive rates</li>
+            <li>Comprehensive coverage of security domains (SAST, SCA, DAST)</li>
+        </ul>
+
+        <h3>3.2.2 Phase 2: Design</h3>
+        <p>The design phase incorporates secure design principles and architecture planning:</p>
+
+        <p>Architecture Design:</p>
+        <ul>
+            <li>Defense in Depth: Multiple security layers ensure that if one control fails, others provide protection
+            </li>
+            <li>Least Privilege: GitHub Actions jobs run with minimum required permissions (contents: read by default)
+            </li>
+            <li>Separation of Concerns: Security gates separated into distinct jobs (secrets-detection,
+                pre-commit-checks, build-and-test)</li>
+            <li>Fail-Safe Defaults: Pipeline fails by default on security findings; continue-on-error only on test
+                branch</li>
+        </ul>
+
+        <p>Security Controls Design:</p>
+        <ul>
+            <li>Pre-commit hooks configuration (.pre-commit-config.yaml) for local enforcement</li>
+            <li>Gitleaks configuration (.gitleaks.toml) with custom rules and allowlists</li>
+            <li>SonarQube project properties (sonar-project.properties) for code quality gates</li>
+            <li>Branch-specific scanning configurations (Python for main, JavaScript for test)</li>
+            <li>Docker security configurations (non-root users, health checks, resource limits)</li>
+        </ul>
+
+        <p>Dual-Branch Strategy Design:</p>
+        <ul>
+            <li>Main Branch: Designed as production baseline with strict security enforcement</li>
+            <li>Test Branch: Designed for validation with relaxed thresholds to observe tool behavior</li>
+            <li>Branch-specific conditional logic in CI/CD pipeline (if: github.ref == 'refs/heads/...')</li>
+            <li>Different application ports, scanning targets, and failure tolerances per branch</li>
+        </ul>
+
+        <h3>3.2.3 Phase 3: Implementation (Coding)</h3>
+        <p>Security practices are enforced during the coding phase through automated controls and best practices:</p>
+
+        <p>Secure Coding Practices (Flask Application):</p>
+        <ul>
+            <li>Input Validation: All user inputs validated before processing (first_name, last_name, email, age, city)
+            </li>
+            <li>CSRF Protection: Flask-WTF provides automatic CSRF token generation and validation</li>
+            <li>SQL Injection Prevention: Flask-SQLAlchemy ORM prevents SQL injection through parameterized queries</li>
+            <li>Error Handling: Custom error handlers (404, 500) prevent information leakage</li>
+            <li>Secret Management: Environment variables loaded via python-dotenv; no hardcoded credentials</li>
+            <li>Session Security: Secure SECRET_KEY from environment variables</li>
+            <li>Age Validation: Server-side validation ensures age is between 1-150</li>
+            <li>Email Uniqueness: Database constraint prevents duplicate email registrations</li>
+        </ul>
+
+        <p>Pre-Commit Hook Enforcement:</p>
+        <ul>
+            <li>Black Formatter: Automatically formats code to 120-character line length, PEP 8 compliant</li>
+            <li>Gitleaks Hook: Scans staged files for secrets before allowing commit</li>
+            <li>Developer Workflow: Pre-commit hooks installed via: pre-commit install</li>
+            <li>Bypass Prevention: CI pipeline re-runs same checks to prevent hook bypass</li>
+        </ul>
+
+        <p>Version Control Practices:</p>
+        <ul>
+            <li>Descriptive commit messages documenting changes</li>
+            <li>.gitignore configured to exclude sensitive files (.env, database files, cache directories)</li>
+            <li>CODEOWNERS file ensures @hs-fassih reviews all critical file changes</li>
+            <li>Branch protection rules require status checks to pass</li>
+        </ul>
+
+        <p>Code Quality Standards:</p>
+        <ul>
+            <li>Modular code structure with separation of routes, models, and templates</li>
+            <li>Inline comments explaining security-relevant code sections</li>
+            <li>Consistent naming conventions (snake_case for Python)</li>
+            <li>Template constants (TEMPLATE_ADD, TEMPLATE_UPDATE) to avoid magic strings</li>
+            <li>Type hints and docstrings for functions where applicable</li>
+        </ul>
+
+        <h3>3.2.4 Phase 4: Testing</h3>
+        <p>Comprehensive testing ensures both functionality and security:</p>
+
+        <p>Functional Testing:</p>
+        <ul>
+            <li>Unit Tests (Pytest): Located in tests/basic_test.py</li>
+            <li>Test Isolation: In-memory SQLite database (sqlite:///:memory:) prevents production data modification
+            </li>
+        </ul>
+
+        <p>Test Cases:</p>
+        <pre>
+test_1_index_returns_200: Verifies home page accessibility
+
+test_2_add_user_works_properly: Validates user creation with test data
+        </pre>
+
+        <p>Configuration Management: Separate test configuration (TESTING=True, WTF_CSRF_ENABLED=False)</p>
+        <p>Execution: Automated via pytest in CI/CD pipeline with --maxfail=1 --disable-warnings</p>
+
+        <p>Static Security Testing (SAST):</p>
+        <ul>
+            <li>Semgrep Analysis: Scans for OWASP Top 10 vulnerabilities</li>
+            <li>Language-specific rules (Python for main, JavaScript/TypeScript/Node.js for test)</li>
+            <li>Fails on ERROR severity findings</li>
+            <li>JSON report with detailed finding information</li>
+        </ul>
+
+        <p>SonarQube Analysis:</p>
+        <ul>
+            <li>Code quality metrics (bugs, code smells, technical debt)</li>
+            <li>Security hotspots identification</li>
+            <li>Quality gate with HIGH/CRITICAL threshold</li>
+            <li>Integration with SonarCloud for centralized reporting</li>
+        </ul>
+
+        <p>Software Composition Analysis (SCA):</p>
+        <ul>
+            <li>Trivy Filesystem Scan: Scans requirements.txt for vulnerable Python packages</li>
+            <li>Scans package.json/package-lock.json for vulnerable Node.js packages</li>
+            <li>Checks for hardcoded secrets in source code</li>
+            <li>Configuration file vulnerability detection</li>
+        </ul>
+
+        <p>Trivy Image Scan:</p>
+        <ul>
+            <li>Scans Docker image layers for OS vulnerabilities</li>
+            <li>Identifies vulnerable packages in base image</li>
+            <li>Configuration security checks (exposed ports, user privileges)</li>
+            <li>JSON output with CVE details, package names, and versions</li>
+        </ul>
+
+        <p>Dynamic Security Testing (DAST):</p>
+        <ul>
+            <li>OWASP ZAP Baseline Scan: Passive scanning of running application</li>
+            <li>Tests for XSS, SQL injection, CSRF, insecure configurations</li>
+            <li>Spider crawls application to discover endpoints</li>
+            <li>Generates HTML, XML, and Markdown reports</li>
+        </ul>
+
+        <p>Custom Evaluation (zap-hook.py):</p>
+        <ul>
+            <li>Parses ZAP XML report using defusedxml (prevents XXE attacks)</li>
+            <li>Categorizes findings by severity (High, Medium, Low, Informational)</li>
+            <li>Fails pipeline on HIGH severity alerts</li>
+            <li>Warns on MEDIUM severity (doesn't block deployment)</li>
+        </ul>
+
+        <p>Validation Testing (Juice Shop):</p>
+        <ul>
+            <li>Tests security tools against 100+ known vulnerabilities</li>
+            <li>Validates true positive detection capabilities</li>
+            <li>Ensures tools don't produce excessive false negatives</li>
+            <li>Confirms branch-specific configurations work correctly</li>
+        </ul>
+
+        <h3>3.2.5 Phase 5: Deployment</h3>
+        <p>Security controls in the deployment phase ensure only secure artifacts are published:</p>
+
+        <p>Container Registry Security:</p>
+        <ul>
+            <li>Images pushed only to GitHub Container Registry (GHCR) after passing all scans</li>
+            <li>Image tagging with GitHub SHA for traceability (ghcr.io/hs-fassih/cicd_security:SHA)</li>
+            <li>Authentication using GitHub token with packages: write permission</li>
+            <li>Automatic image cleanup on failed security scans</li>
+            <li>Image pushed only if: success() condition met (all previous steps passed)</li>
+            <li>On test branch: Images pushed with continue-on-error for analysis</li>
+        </ul>
+
+        <p>Deployment Gates:</p>
+        <ul>
+            <li>Docker compose used for local/test deployments with health checks</li>
+            <li>30-second startup grace period with retry logic</li>
+        </ul>
+
+        <h3>3.2.6 Phase 6: Maintenance</h3>
+        <p>Ongoing security maintenance is automated through several mechanisms:</p>
+
+        <p>Automated Dependency Updates:</p>
+        <ul>
+            <li>Dependabot Configuration (.github/dependabot.yml): Weekly scans on Monday at 09:00</li>
+            <li>Python (pip) dependency updates</li>
+            <li>Docker base image updates</li>
+            <li>GitHub Actions workflow updates</li>
+            <li>Groups minor/patch updates together</li>
+            <li>Maximum 5 open PRs for pip, 3 for Docker, 5 for Actions</li>
+        </ul>
+
+        <p>Continuous Monitoring:</p>
+        <ul>
+            <li>CI/CD pipeline runs on every push and pull request</li>
+            <li>Security scans re-run with latest vulnerability databases</li>
+            <li>Trivy database updated automatically from ghcr.io/aquasecurity/trivy-db</li>
+            <li>SonarQube analysis tracks metrics over time</li>
+            <li>ZAP scan reports retained for 30 days</li>
+            <li>Semgrep JSON reports available for post-analysis</li>
+        </ul>
+
+        <p>Artifact Retention:</p>
+        <ul>
+            <li>Docker images tagged with commit SHA for rollback capability</li>
+            <li>CI/CD workflow logs available for audit trail</li>
+        </ul>
+
+        <h3>3.3 Security Activities Summary Table</h3>
+        <table>
+            <tr>
+                <th>SDLC PHASE</th>
+                <th>SECURITY ACTIVITIES</th>
+                <th>TOOLS/PRACTICES</th>
+                <th>DELIVERABLES</th>
+            </tr>
+            <tr>
+                <td>Requirements</td>
+                <td>• Security objectives definition<br>• Tool selection<br>• Threat modeling planning<br>• Compliance
+                    requirements</td>
+                <td>• STRIDE framework<br>• OWASP guidelines<br>• Tool evaluation criteria</td>
+                <td>• Security requirements document<br>• Tool selection justification<br>• Threat model template</td>
+            </tr>
+            <tr>
+                <td>Design</td>
+                <td>• Security architecture design<br>• Defense-in-depth layers<br>• Least privilege principles<br>•
+                    Separation of concerns<br>• Fail-safe defaults<br>• Access control design<br>• Branch strategy
+                    design</td>
+                <td>• Least privilege principles<br>• Separation of concerns<br>• Fail-safe defaults</td>
+                <td>• Architecture diagrams<br>• Security controls matrix<br>• Configuration files</td>
+            </tr>
+            <tr>
+                <td>Implementation</td>
+                <td>• Secure coding practices<br>• Pre-commit hook enforcement<br>• Code review requirements<br>• Secret
+                    management</td>
+                <td>• Black formatter<br>• Gitleaks hooks<br>• CODEOWNERS<br>• python-dotenv</td>
+                <td>• Formatted code<br>• No secrets in commits<br>• Reviewed PRs<br>• Environment configs</td>
+            </tr>
+            <tr>
+                <td>Testing</td>
+                <td>• Unit testing<br>• SAST analysis<br>• SCA scanning<br>• DAST testing<br>• Validation testing</td>
+                <td>• Pytest<br>• Semgrep, SonarQube<br>• Trivy<br>• OWASP ZAP<br>• Juice Shop</td>
+                <td>• Test reports<br>• SAST findings<br>• Vulnerability reports<br>• DAST scan results<br>• Validation
+                    evidence</td>
+            </tr>
+            <tr>
+                <td>Deployment</td>
+                <td>• Container security<br>• Image scanning<br>• Registry authentication<br>• Deployment gates</td>
+                <td>• Docker<br>• Trivy image scan<br>• GHCR<br>• GitHub Actions conditions</td>
+                <td>• Scanned images<br>• Deployment artifacts<br>• Traceability tags<br>• Health check results</td>
+            </tr>
+            <tr>
+                <td>Maintenance</td>
+                <td>• Dependency updates<br>• Continuous scanning<br>• Artifact retention<br>• Audit logging</td>
+                <td>• Dependabot<br>• CI/CD automation<br>• GitHub artifacts<br>• Workflow logs</td>
+                <td>• Update PRs<br>• Updated scan results<br>• Historical reports<br>• Audit trails</td>
+            </tr>
+        </table>
+
+        <h3>3.4 Continuous Integration/Continuous Deployment (CI/CD) Workflow</h3>
+        <p>The GitHub Actions workflow (.github/workflows/ci.yml) orchestrates all security activities in an automated
+            pipeline:</p>
+
+        <p>Workflow Trigger:</p>
+        <ul>
+            <li>Triggers: Push events and Pull Request events</li>
+            <li>Branches: main and test/juice-shop-pipeline</li>
+        </ul>
+
+        <p>Job Dependencies:</p>
+        <ul>
+            <li>Global permissions: contents: read (least privilege by default)</li>
+            <li>Job 1 (Parallel): secrets-detection</li>
+            <li>Job 2 (Parallel): pre-commit-checks</li>
+            <li>Job 3 (Sequential): build-and-test (needs: [secrets-detection, pre-commit-checks])</li>
+        </ul>
+
+        <p>Build-and-Test Job Stages (17 Steps):</p>
+        <ul>
+            <li>Checkout code (actions/checkout@v6)</li>
+            <li>Set up Python 3.14 (actions/setup-python@v6)</li>
+            <li>Install dependencies (pip install -r requirements.txt, pytest)</li>
+            <li>Run pytest tests</li>
+            <li>Trivy filesystem SCA scan</li>
+            <li>Semgrep SAST analysis</li>
+            <li>SonarQube SAST analysis</li>
+            <li>SonarQube quality gate check</li>
+            <li>Login to GHCR (docker/login-action@v3)</li>
+            <li>Build Docker image</li>
+            <li>Trivy image security scan</li>
+            <li>Push image to GHCR (on success only)</li>
+            <li>Start application with docker-compose</li>
+            <li>OWASP ZAP DAST scan</li>
+            <li>Evaluate ZAP results (zap-hook.py)</li>
+            <li>Upload ZAP reports as artifacts</li>
+            <li>Stop and cleanup application</li>
+        </ul>
+
+        <p>Conditional Execution:</p>
+        <ul>
+            <li>Branch-specific configurations via shell conditionals (if [ "${{ github.ref }}" == "..." ])</li>
+            <li>continue-on-error: true on test branch for Trivy, Semgrep, SonarQube, and ZAP</li>
+            <li>Different scanning targets (. for main, juice-shop/ for test)</li>
+            <li>Different application ports (8080 for Flask, 3000 for Juice Shop)</li>
+        </ul>
+
+        <h3>3.5 Methodology Benefits</h3>
+        <p>This comprehensive SDLC integration approach provides several key benefits:</p>
+        <ul>
+            <li>Early Detection: Security issues caught in pre-commit stage cost least to fix</li>
+            <li>Consistency: Automated processes ensure security checks never skipped</li>
+            <li>Visibility: All security findings documented in CI/CD logs and artifacts</li>
+            <li>Traceability: Every commit linked to security scan results</li>
+            <li>Validation: Dual-branch strategy proves tools work correctly</li>
+            <li>Maintainability: Automated dependency updates reduce security debt</li>
+            <li>Compliance: Comprehensive documentation supports audit requirements</li>
+        </ul>
+
+        <h2 id="threat-modeling">4. Threat Modeling & Risk Analysis</h2>
+
+        <h3>4.1 Threat Modeling Framework</h3>
+        <p>This project employs the STRIDE threat modeling framework, developed by Microsoft, to systematically identify
+            and categorize security threats. STRIDE is an acronym representing six categories of threats: Spoofing,
+            Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each category
+            is analyzed in the context of both the Flask CRUD application and the CI/CD security pipeline.</p>
+
+        <h3>4.2 Asset Identification</h3>
+        <p>Before conducting threat analysis, critical assets requiring protection are identified:</p>
+        <ul>
+            <li>Source Code: Flask application code, configuration files, and scripts</li>
+            <li>Secrets & Credentials: API tokens, database credentials, SECRET_KEY, SONAR_TOKEN, GITHUB_TOKEN</li>
+            <li>User Data: User records stored in SQLite database (names, emails, age, city)</li>
+            <li>Dependencies: Third-party Python packages (Flask, SQLAlchemy, etc.)</li>
+            <li>Container Images: Docker images stored in GitHub Container Registry</li>
+            <li>CI/CD Pipeline: GitHub Actions workflows and configurations</li>
+            <li>Security Scan Results: SAST/SCA/DAST reports containing vulnerability information</li>
+        </ul>
+
+        <h3>4.3 STRIDE Threat Analysis</h3>
+
+        <h3>4.3.1 Spoofing Identity</h3>
+        <p>Definition: Threats where an attacker pretends to be someone or something else to gain unauthorized access.
+        </p>
+
+        <p>Identified Threats:</p>
+        <ul>
+            <li>T1.1 - Stolen GitHub Credentials: Attacker gains access to developer GitHub account to push malicious
+                code</li>
+            <li>T1.2 - Compromised Service Account Tokens: GITHUB_TOKEN or SONAR_TOKEN stolen and used for unauthorized
+                access</li>
+            <li>T1.3 - Session Hijacking: Attacker steals Flask session cookie to impersonate legitimate user</li>
+            <li>T1.4 - Container Registry Authentication Bypass: Unauthorized push to GHCR due to weak authentication
+            </li>
+        </ul>
+
+        <p>Mitigation Strategies:</p>
+        <ul>
+            <li>GitHub two-factor authentication (2FA) enforcement</li>
+            <li>Secrets stored in GitHub Secrets (encrypted at rest)</li>
+            <li>Flask SECRET_KEY loaded from environment variables, never hardcoded</li>
+            <li>GHCR authentication using short-lived GitHub tokens (packages: write permission)</li>
+            <li>Gitleaks prevents accidental token commits</li>
+        </ul>
+
+        <h3>4.3.2 Tampering with Data</h3>
+        <p>Definition: Threats where an attacker modifies data in transit or at rest without authorization.</p>
+
+        <p>Identified Threats:</p>
+        <ul>
+            <li>T2.1 - Code Tampering: Malicious code injected into source repository</li>
+            <li>T2.2 - Dependency Confusion: Malicious packages with similar names replace legitimate dependencies</li>
+            <li>T2.3 - SQL Injection: Attacker modifies database through unvalidated inputs</li>
+            <li>T2.4 - Man-in-the-Middle (MITM): Traffic intercepted and modified between client and server</li>
+            <li>T2.5 - Container Image Tampering: Malicious layers injected into Docker images</li>
+            <li>T2.6 - Configuration File Manipulation: Security configurations (.gitleaks.toml, ci.yml) modified to
+                bypass controls</li>
+        </ul>
+
+        <p>Mitigation Strategies:</p>
+        <ul>
+            <li>CODEOWNERS enforcement: All changes require approval from @hs-fassih</li>
+            <li>Branch protection rules: Direct pushes to main blocked; PRs require status checks</li>
+            <li>Flask-SQLAlchemy ORM: Parameterized queries prevent SQL injection</li>
+            <li>Input validation: Server-side validation of all user inputs (age 1-150, email format)</li>
+            <li>Trivy dependency scanning: Detects known vulnerable packages before deployment</li>
+            <li>Docker image signing: Images tagged with commit SHA for integrity verification</li>
+            <li>HTTPS enforcement: All external communications encrypted (GitHub API, SonarCloud)</li>
+        </ul>
+
+        <h3>4.3.3 Repudiation</h3>
+        <p>Definition: Threats where users deny performing actions, and the system cannot prove otherwise.</p>
+
+        <p>Identified Threats:</p>
+        <ul>
+            <li>T3.1 - Unlogged Security Changes: Security configuration changes without audit trail</li>
+            <li>T3.2 - Anonymous Code Commits: Code changes without proper attribution</li>
+            <li>T3.3 - Pipeline Execution Denial: Claiming a security scan never ran when it actually failed</li>
+        </ul>
+
+        <p>Mitigation Strategies:</p>
+        <ul>
+            <li>Git commit history: All changes tracked with author, timestamp, and commit message</li>
+            <li>GitHub Actions logs: Complete audit trail of all pipeline executions (retained per GitHub policy)</li>
+            <li>Artifact retention: ZAP scan reports stored for 30 days as evidence</li>
+            <li>SonarCloud history: Quality gate results tracked over time with timestamps</li>
+            <li>.mailmap file: Ensures consistent contributor identification</li>
+            <li>Signed commits (optional): GPG signing available for additional non-repudiation</li>
+        </ul>
+
+        <h3>4.3.4 Information Disclosure</h3>
+        <p>Definition: Threats where sensitive information is exposed to unauthorized parties.</p>
+
+        <p>Identified Threats:</p>
+        <ul>
+            <li>T4.1 - Hardcoded Secrets in Source: API keys, passwords, tokens committed to repository</li>
+            <li>T4.2 - Verbose Error Messages: Stack traces and internal paths exposed in error responses</li>
+            <li>T4.3 - Database Credentials in Logs: Connection strings logged in CI/CD output</li>
+            <li>T4.4 - Security Scan Reports Exposure: Vulnerability details publicly accessible</li>
+            <li>T4.5 - Environment Variable Leakage: .env file accidentally committed</li>
+            <li>T4.6 - Directory Listing: Server exposes directory contents and file structure</li>
+        </ul>
+
+        <p>Mitigation Strategies:</p>
+        <ul>
+            <li>Gitleaks (dual-layer): Pre-commit hooks + CI pipeline scan for secrets</li>
+            <li>.gitignore configuration: .env, *.db, instance/, __pycache__/ excluded from repository</li>
+            <li>Custom error handlers: 404.html and 500.html prevent information leakage</li>
+            <li>Debug mode disabled: app.run(debug=False) in production</li>
+            <li>GitHub Secrets: SONAR_TOKEN, SONAR_PROJECT_KEY stored encrypted</li>
+            <li>Trivy secret scanning: Detects secrets in dependencies and configuration files</li>
+            <li>Artifact access control: ZAP reports only accessible to repository collaborators</li>
+            <li>Flask session security: Session cookies use SECRET_KEY from environment</li>
+        </ul>
+
+        <h3>4.3.5 Denial of Service (DoS)</h3>
+        <p>Definition: Threats where system availability is disrupted, preventing legitimate users from accessing
+            resources.</p>
+
+        <p>Identified Threats:</p>
+        <ul>
+            <li>T5.1 - Resource Exhaustion: Malicious inputs causing excessive CPU/memory consumption</li>
+            <li>T5.2 - CI/CD Pipeline Abuse: Attacker triggers excessive workflow runs to exhaust GitHub Actions minutes
+            </li>
+            <li>T5.3 - Dependency DoS: Compromised dependencies causing application crashes</li>
+            <li>T5.4 - Database Lock: Long-running queries blocking other operations</li>
+            <li>T5.5 - Container Resource Starvation: Container consuming all host resources</li>
+        </ul>
+
+        <p>Mitigation Strategies:</p>
+        <ul>
+            <li>Input validation: Age limited to 1-150, string length constraints enforced</li>
+            <li>Docker resource limits: docker-compose.yml defines CPU and memory constraints</li>
+            <li>Workflow trigger controls: Push and PR events only; no public workflow_dispatch</li>
+            <li>Database timeouts: SQLAlchemy connection pooling and timeout configurations</li>
+            <li>Health checks: Container health checks with 10s interval, 5s timeout, 5 retries</li>
+            <li>Rate limiting (recommended): Flask-Limiter can be added for production deployment</li>
+            <li>Dependency scanning: Trivy detects packages with known DoS vulnerabilities</li>
+        </ul>
+
+        <h3>4.3.6 Elevation of Privilege</h3>
+        <p>Definition: Threats where an attacker gains higher-level permissions than authorized.</p>
+
+        <p>Identified Threats:</p>
+        <ul>
+            <li>T6.1 - GitHub Actions Privilege Escalation: Workflow gains excessive permissions to write code or access
+                secrets</li>
+            <li>T6.2 - Container Escape: Attacker breaks out of Docker container to access host system</li>
+            <li>T6.3 - SQL Injection to Admin: Attacker uses SQL injection to gain admin privileges</li>
+            <li>T6.4 - Dependency Confusion to Code Execution: Malicious package runs with application privileges</li>
+            <li>T6.5 - CSRF to Unauthorized Actions: Attacker tricks authenticated user into performing privileged
+                actions</li>
+        </ul>
+
+        <p>Mitigation Strategies:</p>
+        <ul>
+            <li>Least privilege permissions: GitHub Actions jobs run with minimal required permissions</li>
+            <li>Global: contents: read</li>
+            <li>Secrets job: contents: read, security-events: write</li>
+            <li>Pre-commit job: contents: read only</li>
+            <li>Build job: contents: read, packages: write, security-events: write</li>
+            <li>Non-root containers: Juice Shop Dockerfile specifies USER node (non-root)</li>
+            <li>Flask-SQLAlchemy ORM: Prevents SQL injection through parameterized queries</li>
+            <li>CSRF protection: Flask-WTF provides automatic CSRF token validation</li>
+            <li>Dependency verification: npm ci/pip install verifies package integrity via checksums</li>
+            <li>Security options: docker-compose.yml includes security_opt: no-new-privileges:true</li>
+            <li>Trivy scanning: Detects privilege escalation vulnerabilities in dependencies</li>
+        </ul>
+
+        <h3>4.4 Risk Assessment (DREAD Methodology)</h3>
+        <p>Each identified threat is assessed using the DREAD framework, which evaluates five dimensions: Damage
+            potential, Reproducibility, Exploitability, Affected users, and Discoverability. Each dimension is rated
+            0-10, and the average provides the overall risk score.</p>
+
+        <table>
+            <tr>
+                <th>THREAT ID</th>
+                <th>THREAT NAME</th>
+                <th>DAMAGE</th>
+                <th>REPRODUCIBILITY</th>
+                <th>EXPLOITABILITY</th>
+                <th>AFFECTED USERS</th>
+                <th>DISCOVERABILITY</th>
+                <th>RISK SCORE</th>
+                <th>PRIORITY</th>
+            </tr>
+            <tr>
+                <td>T4.1</td>
+                <td>Hardcoded Secrets</td>
+                <td>10</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+                <td>7</td>
+                <td>8.8</td>
+                <td>Critical</td>
+            </tr>
+            <tr>
+                <td>T2.3</td>
+                <td>SQL Injection</td>
+                <td>9</td>
+                <td>6</td>
+                <td>7</td>
+                <td>10</td>
+                <td>6</td>
+                <td>7.6</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T6.1</td>
+                <td>Actions Privilege Escalation</td>
+                <td>9</td>
+                <td>4</td>
+                <td>5</td>
+                <td>10</td>
+                <td>5</td>
+                <td>6.6</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T2.2</td>
+                <td>Dependency Confusion</td>
+                <td>8</td>
+                <td>5</td>
+                <td>6</td>
+                <td>10</td>
+                <td>4</td>
+                <td>6.6</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T1.1</td>
+                <td>Stolen GitHub Credentials</td>
+                <td>9</td>
+                <td>3</td>
+                <td>6</td>
+                <td>10</td>
+                <td>4</td>
+                <td>6.4</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T2.5</td>
+                <td>Container Image Tampering</td>
+                <td>8</td>
+                <td>4</td>
+                <td>5</td>
+                <td>10</td>
+                <td>5</td>
+                <td>6.4</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T4.2</td>
+                <td>Verbose Error Messages</td>
+                <td>6</td>
+                <td>8</td>
+                <td>8</td>
+                <td>7</td>
+                <td>7</td>
+                <td>7.2</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T6.5</td>
+                <td>CSRF Attacks</td>
+                <td>7</td>
+                <td>6</td>
+                <td>6</td>
+                <td>8</td>
+                <td>5</td>
+                <td>6.4</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T5.1</td>
+                <td>Resource Exhaustion</td>
+                <td>6</td>
+                <td>7</td>
+                <td>7</td>
+                <td>10</td>
+                <td>6</td>
+                <td>7.2</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>T2.1</td>
+                <td>Code Tampering</td>
+                <td>9</td>
+                <td>2</td>
+                <td>4</td>
+                <td>10</td>
+                <td>3</td>
+                <td>5.6</td>
+                <td>Medium</td>
+            </tr>
+            <tr>
+                <td>T1.3</td>
+                <td>Session Hijacking</td>
+                <td>7</td>
+                <td>4</td>
+                <td>5</td>
+                <td>5</td>
+                <td>4</td>
+                <td>5.0</td>
+                <td>Medium</td>
+            </tr>
+            <tr>
+                <td>T5.2</td>
+                <td>CI/CD Pipeline Abuse</td>
+                <td>4</td>
+                <td>6</td>
+                <td>5</td>
+                <td>3</td>
+                <td>6</td>
+                <td>4.8</td>
+                <td>Medium</td>
+            </tr>
+            <tr>
+                <td>T3.1</td>
+                <td>Unlogged Security Changes</td>
+                <td>5</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>3</td>
+                <td>4.0</td>
+                <td>Medium</td>
+            </tr>
+            <tr>
+                <td>T4.6</td>
+                <td>Directory Listing</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>6</td>
+                <td>7</td>
+                <td>5.6</td>
+                <td>Medium</td>
+            </tr>
+            <tr>
+                <td>T6.2</td>
+                <td>Container Escape</td>
+                <td>9</td>
+                <td>2</td>
+                <td>3</td>
+                <td>8</td>
+                <td>2</td>
+                <td>4.8</td>
+                <td>Medium</td>
+            </tr>
+        </table>
+
+        <h3>4.5 Risk Mitigation Justification</h3>
+
+        <h3>4.5.1 Critical Priority (Risk Score ≥ 8.0)</h3>
+        <p>T4.1 - Hardcoded Secrets in Source Code (Score: 8.8)</p>
+        <p>Justification for Mitigation:</p>
+        <ul>
+            <li>Impact: Exposed secrets provide direct access to critical systems (GitHub, SonarCloud, databases)</li>
+            <li>Cost: Secret rotation after exposure is expensive and disruptive</li>
+            <li>Mitigation Feasibility: Gitleaks implementation is straightforward and highly effective</li>
+            <li>ROI: Prevents potentially catastrophic data breaches with minimal overhead</li>
+        </ul>
+        <p>Implementation:</p>
+        <ul>
+            <li>Dual-layer Gitleaks: pre-commit hooks (local) + CI pipeline (remote)</li>
+            <li>Custom .gitleaks.toml with 100+ lines of configuration</li>
+            <li>GitHub Secrets for SONAR_TOKEN, SONAR_PROJECT_KEY, GITHUB_TOKEN</li>
+            <li>python-dotenv for local secret management</li>
+            <li>.gitignore excludes .env files</li>
+        </ul>
+
+        <h3>4.5.2 High Priority (Risk Score 6.0-7.9)</h3>
+        <p>T2.3 - SQL Injection (Score: 7.6)</p>
+        <p>Justification: SQL injection remains the #3 OWASP Top 10 vulnerability with severe consequences including
+            data theft, corruption, and unauthorized access.</p>
+        <p>Mitigation: Flask-SQLAlchemy ORM with parameterized queries, plus input validation on all user inputs.</p>
+
+        <p>T6.1 - GitHub Actions Privilege Escalation (Score: 6.6)</p>
+        <p>Justification: Excessive workflow permissions could allow compromised workflows to modify code or access
+            secrets.</p>
+        <p>Mitigation: Least privilege permissions model with explicit permissions blocks per job.</p>
+
+        <p>T2.2 - Dependency Confusion (Score: 6.6)</p>
+        <p>Justification: Compromised dependencies are a common supply chain attack vector (e.g., SolarWinds,
+            Log4Shell).</p>
+        <p>Mitigation: Trivy SCA scanning + Dependabot automated updates + package integrity verification.</p>
+
+        <p>T1.1 - Stolen GitHub Credentials (Score: 6.4)</p>
+        <p>Justification: Developer account compromise could allow code tampering or secret exfiltration.</p>
+        <p>Mitigation: GitHub 2FA, Gitleaks for token detection, limited permissions.</p>
+
+        <p>T2.5 - Container Image Tampering (Score: 6.4)</p>
+        <p>Justification: Malicious images could introduce backdoors or vulnerabilities.</p>
+        <p>Mitigation: Trivy image scanning, SHA tagging, push only on success.</p>
+
+        <p>T4.2 - Verbose Error Messages (Score: 7.2)</p>
+        <p>Justification: Exposed system details aid attackers in reconnaissance.</p>
+        <p>Mitigation: Custom error handlers, debug mode disabled.</p>
+
+        <p>T6.5 - CSRF Attacks (Score: 6.4)</p>
+        <p>Justification: CSRF is OWASP Top 10 #9, allowing unauthorized actions.</p>
+        <p>Mitigation: Flask-WTF CSRF protection on all forms.</p>
+
+        <p>T5.1 - Resource Exhaustion (Score: 7.2)</p>
+        <p>Justification: DoS attacks can make application unavailable.</p>
+        <p>Mitigation: Input validation, Docker resource limits, health checks.</p>
+
+        <h3>4.5.3 Medium Priority (Risk Score 4.0-5.9)</h3>
+        <p>Medium priority threats are mitigated through:</p>
+        <ul>
+            <li>CODEOWNERS enforcement for code review</li>
+            <li>Docker resource limits and security options</li>
+            <li>Comprehensive audit logging via Git and GitHub Actions</li>
+            <li>Custom error handlers preventing information disclosure</li>
+            <li>Non-root container users and no-new-privileges flags</li>
+        </ul>
+
+        <h3>4.6 Residual Risk</h3>
+        <p>After implementing all mitigation strategies, the following residual risks remain:</p>
+        <ul>
+            <li>Zero-Day Vulnerabilities: Unknown vulnerabilities in dependencies cannot be detected until disclosed
+            </li>
+            <li>Social Engineering: Developer accounts may be compromised through phishing despite 2FA</li>
+            <li>False Negatives: Security tools may miss some vulnerabilities (validated via Juice Shop testing)</li>
+            <li>Configuration Errors: Misconfiguration of security tools may reduce effectiveness</li>
+            <li>Performance Impact: Security scans add 5-10 minutes to CI/CD pipeline execution time</li>
+        </ul>
+
+        <p>Risk Acceptance:</p>
+        <ul>
+            <li>Cost-benefit analysis (additional controls would be disproportionately expensive)</li>
+            <li>Defense-in-depth approach minimizes impact of any single control failure</li>
+            <li>Continuous monitoring and updates reduce window of exposure</li>
+            <li>Dual-branch validation strategy ensures tool effectiveness</li>
+        </ul>
+
+        <h3>4.7 Threat Model Summary</h3>
+        <p>The comprehensive threat modeling and risk analysis demonstrates:</p>
+        <ul>
+            <li>Systematic Coverage: All STRIDE categories analyzed with specific threats identified</li>
+            <li>Risk-Based Prioritization: DREAD scoring enables focus on highest-impact threats</li>
+            <li>Layered Defenses: Multiple controls address each threat category</li>
+            <li>Justified Mitigations: Each control selected based on feasibility and effectiveness</li>
+            <li>Validated Effectiveness: Dual-branch strategy proves controls work as intended</li>
+            <li>Documented Residual Risk: Remaining risks explicitly identified and accepted</li>
+        </ul>
+
+        <h2 id="code-implementation">5. Code Implementation & Security Practices</h2>
+
+        <h3>5.1 Secure Coding & Best Practices</h3>
+        <p>The Flask CRUD application implements comprehensive security principles aligned with OWASP guidelines and
+            industry best practices. This section details the security features implemented in the application code and
+            infrastructure.</p>
+
+        <h3>5.1.1 Input Validation and Sanitization</h3>
+        <p>All user inputs undergo rigorous server-side validation to prevent injection attacks and data integrity
+            issues:</p>
+
+        <p>Presence Validation:</p>
+        <pre>
+# Check all required fields are present
+if not all([first_name, last_name, email, age, city]):
+    flash("All fields are required!", "error")
+    return render_template(TEMPLATE_ADD)
+        </pre>
+
+        <p>Type Validation:</p>
+        <pre>
+# Validate age is a valid integer
+try:
+    age = int(age)
+    if age &lt;= 0 or age &gt; 150:
+        flash("Please enter a valid age (1-150)!", "error")
+        return render_template(TEMPLATE_ADD)
+except ValueError:
+    flash("Age must be a valid number!", "error")
+    return render_template(TEMPLATE_ADD)
+        </pre>
+
+        <p>Business Logic Validation:</p>
+        <pre>
+# Check if email is unique
+existing_user = User.query.filter_by(email=email).first()
+if existing_user:
+    flash("Email already exists! Please use a different email.", "error")
+    return render_template(TEMPLATE_ADD)
+        </pre>
+
+        <h3>5.1.2 SQL Injection Prevention</h3>
+        <p>The application uses Flask-SQLAlchemy ORM, which automatically generates parameterized queries to prevent SQL
+            injection attacks:</p>
+        <pre>
+# Safe ORM uses parameterized queries
+User.query.filter_by(email=email).first()
+
+# Safe: ORM prevents injection in search operations
+User.query.filter(
+    db.or_(
+        User.first_name.ilike(search_pattern),
+        User.last_name.ilike(search_pattern),
+        User.city.ilike(search_pattern),
+    )
+).all()
+
+# Safe: Primary key lookup
+User.query.get_or_404(user_id)
+        </pre>
+
+        <p>Security Benefits:</p>
+        <ul>
+            <li>No raw SQL queries exposed to user input</li>
+            <li>Automatic escaping of special characters</li>
+            <li>Type-safe parameter binding</li>
+            <li>Protection against SQL injection, even with malicious inputs</li>
+        </ul>
+
+        <h3>5.1.3 Cross-Site Request Forgery (CSRF) Protection</h3>
+        <p>Flask-WTF provides automatic CSRF protection for all forms:</p>
+        <pre>
+# Configuration in app.py
+from flask_wtf import FlaskForm
+# SECRET_KEY required for CSRF token generation
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+# Forms automatically include CSRF tokens
+# Templates render tokens via {{ form.csrf_token }}
+        </pre>
+
+        <p>Implementation Details:</p>
+        <ul>
+            <li>CSRF tokens generated per session using SECRET_KEY</li>
+            <li>Tokens validated on all POST/PUT/DELETE requests</li>
+            <li>Tokens rendered in HTML forms automatically</li>
+            <li>Invalid tokens result in 400 Bad Request</li>
+        </ul>
+
+        <h3>5.1.4 Cross-Site Scripting (XSS) Prevention</h3>
+        <p>Jinja2 templating engine (Flask default) provides automatic XSS protection:</p>
+        <pre>
+{{ user.first_name }}
+{{ user.email }}
+{% for message in get_flashed_messages() %}
+    {{ message }}
+{% endfor %}
+        </pre>
+
+        <p>Protection Mechanisms:</p>
+        <ul>
+            <li>Automatic HTML entity encoding (&lt;, &gt;, &amp;, ", ')</li>
+            <li>Context-aware escaping (HTML, JavaScript, URL)</li>
+            <li>Safe by default (manual marking required for unsafe content)</li>
+            <li>Prevents stored XSS in database values</li>
+        </ul>
+
+        <h3>5.1.5 Secret Management</h3>
+        <p>Sensitive configuration data is managed securely through environment variables:</p>
+        <pre>
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
+# Access secrets from environment (never hardcoded)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+# .env file (gitignored)
+SECRET_KEY=your-secret-key-here
+SONAR_TOKEN=your-sonar-token
+GITHUB_TOKEN=your-github-token
+        </pre>
+
+        <p>Security Measures:</p>
+        <ul>
+            <li>.env file excluded via .gitignore</li>
+            <li>Gitleaks prevents accidental secret commits</li>
+            <li>GitHub Secrets for CI/CD credentials</li>
+            <li>No secrets in source code or version control</li>
+            <li>SECRET_KEY used for session signing and CSRF tokens</li>
+        </ul>
+
+        <h3>5.1.6 Error Handling and Information Disclosure Prevention</h3>
+        <p>Custom error handlers prevent exposure of sensitive system information:</p>
+        <pre>
+# Custom 404 handler
+@app.errorhandler(404)
+def not_found_error(error):
+    """Handle 404 errors"""
+    return render_template("404.html"), 404
+
+# Custom 500 handler with session rollback
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    db.session.rollback()
+    return render_template("500.html"), 500
+
+# Production configuration
+app.run(debug=False)
+        </pre>
+
+        <p>Information Disclosure Prevention:</p>
+        <ul>
+            <li>Debug mode disabled in production (debug=False)</li>
+            <li>Generic error pages (no stack traces)</li>
+            <li>Database session rollback on errors</li>
+            <li>No internal paths or configuration exposed</li>
+            <li>User-friendly error messages without technical details</li>
+        </ul>
+
+        <h3>5.1.7 Session Security</h3>
+        <p>Flask sessions are secured using cryptographic signing:</p>
+        <ul>
+            <li>Sessions signed with SECRET_KEY (prevents tampering)</li>
+            <li>Session cookies httpOnly by default (prevents JavaScript access)</li>
+            <li>Secure flag recommended for HTTPS deployments</li>
+            <li>SameSite attribute available for CSRF protection</li>
+        </ul>
+
+        <h3>5.1.8 Database Security</h3>
+        <p>Database operations implement security best practices:</p>
+        <pre>
+# Unique constraint on email
+email = db.Column(db.String(120), unique=True, nullable=False)
+
+# Transaction management with rollback
+try:
+    db.session.add(new_user)
+    db.session.commit()
+    flash("User added successfully!", "success")
+except Exception as e:
+    db.session.rollback()
+    flash(f"Error adding user: {str(e)}", "error")
+        </pre>
+
+        <p>Security Features:</p>
+        <ul>
+            <li>Database constraints enforce data integrity</li>
+            <li>Transactions ensure ACID properties</li>
+            <li>Rollback on errors prevents data corruption</li>
+            <li>ORM prevents direct SQL manipulation</li>
+            <li>Database file (instance/exam_app.db) excluded from version control</li>
+        </ul>
+
+        <h3>5.2 Functionality & Correctness</h3>
+
+        <h3>5.2.1 Application Features</h3>
+        <p>The Flask CRUD application provides complete user management functionality:</p>
+        <table>
+            <tr>
+                <th>FEATURE</th>
+                <th>ROUTE</th>
+                <th>METHOD</th>
+                <th>DESCRIPTION</th>
+            </tr>
+            <tr>
+                <td>List Users</td>
+                <td>/</td>
+                <td>GET</td>
+                <td>Display all users in database with count</td>
+            </tr>
+            <tr>
+                <td>Add User</td>
+                <td>/add</td>
+                <td>GET, POST</td>
+                <td>Form to create new user with validation</td>
+            </tr>
+            <tr>
+                <td>View User</td>
+                <td>/view/&lt;id&gt;</td>
+                <td>GET</td>
+                <td>Display detailed user information</td>
+            </tr>
+            <tr>
+                <td>Update User</td>
+                <td>/update/&lt;id&gt;</td>
+                <td>GET, POST</td>
+                <td>Edit existing user with validation</td>
+            </tr>
+            <tr>
+                <td>Delete User</td>
+                <td>/delete/&lt;id&gt;</td>
+                <td>GET</td>
+                <td>Remove user from database</td>
+            </tr>
+            <tr>
+                <td>Search Users</td>
+                <td>/search</td>
+                <td>GET</td>
+                <td>Search by name, email, or city</td>
+            </tr>
+        </table>
+
+        <h3>5.2.2 Requirements Fulfillment</h3>
+        <p>The application fulfills all functional and security requirements:</p>
+
+        <p>Functional Requirements:</p>
+        <ul>
+            <li>✓ Create new user records with validation</li>
+            <li>✓ Read and display user information</li>
+            <li>✓ Update existing user records</li>
+            <li>✓ Delete user records</li>
+            <li>✓ Search functionality across multiple fields</li>
+            <li>✓ Responsive Bootstrap UI</li>
+            <li>✓ Flash messages for user feedback</li>
+            <li>✓ Database persistence (SQLite)</li>
+        </ul>
+
+        <p>Security Requirements:</p>
+        <ul>
+            <li>✓ Input validation on all forms</li>
+            <li>✓ SQL injection prevention via ORM</li>
+            <li>✓ CSRF protection on all state-changing operations</li>
+            <li>✓ XSS prevention via template escaping</li>
+            <li>✓ Secret management via environment variables</li>
+            <li>✓ Custom error handlers</li>
+            <li>✓ Secure session management</li>
+        </ul>
+
+        <h3>5.3 Code Quality & Documentation</h3>
+
+        <h3>5.3.1 Code Structure</h3>
+        <p>The project follows a modular, maintainable structure:</p>
+        <pre>
+CICD_Security/
+├── app.py # Main application (256 lines)
+├── requirements.txt # Dependencies with versions
+├── .env # Environment variables (gitignored)
+├── .gitignore # Excludes sensitive files
+├── README.md # Comprehensive documentation
+├── dockerfile # Container configuration
+├── docker-compose.yml # Orchestration setup
+├── templates/ # Jinja2 HTML templates
+│   ├── base.html # Base template with Bootstrap
+│   ├── index.html # User list
+│   ├── add.html # Add user form
+│   ├── update.html # Update user form
+│   ├── view.html # User details
+│   ├── search.html # Search results
+│   ├── 404.html # Not found error
+│   └── 500.html # Server error
+├── static/ # CSS, JavaScript, images
+├── instance/ # Database files (gitignored)
+├── tests/ # Unit tests
+│   └── basic_test.py
+├── scripts/ # Utility scripts
+│   ├── zap-hook.py # DAST evaluation
+│   └── entrypoint.sh # Container startup
+└── .github/ # CI/CD configuration
+    └── workflows/
+        └── ci.yml # GitHub Actions workflow
+        </pre>
+
+        <h3>5.3.2 Code Documentation</h3>
+        <p>Code is thoroughly documented with comments and docstrings:</p>
+        <pre>
+# Example: Route with documentation
+@app.route("/add", methods=["GET", "POST"])
+def add_user():
+    """ Add new user route
+    GET: Display add user form
+    POST: Process form submission and create user
+    """
+    if request.method == "POST":
+        # Get form data from request
+        first_name = request.form.get("first_name")
+        # ... (processing logic)
+
+# Example: Error handler documentation
+@app.errorhandler(404)
+def not_found_error(error):
+    """Handle 404 errors"""
+    return render_template("404.html"), 404
+        </pre>
+
+        <p>Documentation Practices:</p>
+        <ul>
+            <li>Inline comments explain security-relevant code</li>
+            <li>Docstrings for all routes and error handlers</li>
+            <li>README.md with setup instructions and architecture</li>
+            <li>test-cases.md documents pre-commit hook testing</li>
+            <li>Configuration files include explanatory comments</li>
+        </ul>
+
+        <h3>5.3.3 Code Style and Consistency</h3>
+        <p>Code adheres to Python PEP 8 standards enforced by Black formatter:</p>
+        <ul>
+            <li>Line Length: 120 characters maximum (configured in .pre-commit-config.yaml)</li>
+            <li>Naming Conventions: snake_case for functions/variables, PascalCase for classes</li>
+            <li>Imports: Organized and grouped (standard library, third-party, local)</li>
+            <li>Constants: UPPERCASE for configuration constants (TEMPLATE_ADD, TEMPLATE_UPDATE)</li>
+            <li>Spacing: Consistent indentation (4 spaces) and blank lines</li>
+        </ul>
+
+        <h3>5.3.4 Security Feature Documentation</h3>
+        <p>Security features are explicitly documented in code and configuration:</p>
+        <pre>
+# .gitleaks.toml - Documented secret detection rules
+# Gitleaks Configuration for CI/CD Security Project
+# This configuration defines rules for detecting hardcoded secrets
+title = "Gitleaks Configuration for CICD_Security"
+
+# Allowlist specific files
+[allowlist]
+description = "Allowlisted files and patterns"
+paths = [
+    '''.env.example''',
+    '''.gitleaks.toml''',
+    '''test-cases.md''',
+]
+
+# Custom rules for Flask-specific secrets
+[[rules]]
+id = "flask-secret-key"
+description = "Flask SECRET_KEY"
+regex = '''SECRET_KEY\s*=\s*['"]([^'"]{16,})['"]'''
+        </pre>
+
+        <h3>5.4 Use of Tools & Libraries</h3>
+
+        <h3>5.4.1 Application Dependencies</h3>
+        <table>
+            <tr>
+                <th>LIBRARY</th>
+                <th>VERSION</th>
+                <th>PURPOSE</th>
+                <th>SECURITY BENEFIT</th>
+            </tr>
+            <tr>
+                <td>Flask</td>
+                <td>3.1.2</td>
+                <td>Web framework</td>
+                <td>Secure session management, CSRF protection</td>
+            </tr>
+            <tr>
+                <td>Flask-SQLAlchemy</td>
+                <td>3.1.1</td>
+                <td>ORM</td>
+                <td>SQL injection prevention</td>
+            </tr>
+            <tr>
+                <td>Flask-WTF</td>
+                <td>1.2.2</td>
+                <td>Form handling</td>
+                <td>CSRF token generation and validation</td>
+            </tr>
+            <tr>
+                <td>WTForms</td>
+                <td>3.2.1</td>
+                <td>Form validation</td>
+                <td>Input validation and sanitization</td>
+            </tr>
+            <tr>
+                <td>python-dotenv</td>
+                <td>1.2.1</td>
+                <td>Environment management</td>
+                <td>Secret management without hardcoding</td>
+            </tr>
+            <tr>
+                <td>defusedxml</td>
+                <td>0.7.1</td>
+                <td>XML parsing</td>
+                <td>XXE attack prevention (ZAP report parsing)</td>
+            </tr>
+        </table>
+
+        <h3>5.4.2 CI/CD Security Tools</h3>
+        <table>
+            <tr>
+                <th>TOOL</th>
+                <th>CATEGORY</th>
+                <th>CONFIGURATION</th>
+                <th>INTEGRATION POINT</th>
+            </tr>
+            <tr>
+                <td>Gitleaks v8.29.1</td>
+                <td>Secrets Detection</td>
+                <td>.gitleaks.toml (100+ lines)</td>
+                <td>Pre-commit + CI pipeline</td>
+            </tr>
+            <tr>
+                <td>Black v25.11.0</td>
+                <td>Code Formatting</td>
+                <td>.pre-commit-config.yaml</td>
+                <td>Pre-commit hook</td>
+            </tr>
+            <tr>
+                <td>Semgrep</td>
+                <td>SAST</td>
+                <td>CI inline config</td>
+                <td>Build step (branch-specific)</td>
+            </tr>
+            <tr>
+                <td>SonarQube</td>
+                <td>SAST/Quality</td>
+                <td>sonar-project.properties</td>
+                <td>Build step + quality gate</td>
+            </tr>
+            <tr>
+                <td>Trivy</td>
+                <td>SCA + Image Scan</td>
+                <td>CI inline config</td>
+                <td>Build step + container scan</td>
+            </tr>
+            <tr>
+                <td>OWASP ZAP</td>
+                <td>DAST</td>
+                <td>Baseline scan mode</td>
+                <td>Post-deployment testing</td>
+            </tr>
+            <tr>
+                <td>Pytest</td>
+                <td>Unit Testing</td>
+                <td>tests/basic_test.py</td>
+                <td>Build step</td>
+            </tr>
+            <tr>
+                <td>Dependabot</td>
+                <td>Dependency Updates</td>
+                <td>.github/dependabot.yml</td>
+                <td>Weekly automated PRs</td>
+            </tr>
+        </table>
+
+        <h3>5.4.3 Tool Selection Rationale</h3>
+        <p>Each tool was selected based on specific criteria:</p>
+
+        <p>Gitleaks:</p>
+        <ul>
+            <li>Chosen because: Fast, accurate, customizable secret detection with minimal false positives</li>
+            <li>Alternatives considered: TruffleHog, git-secrets</li>
+            <li>Advantage: Extensive regex patterns, TOML configuration, pre-commit integration</li>
+        </ul>
+
+        <p>Semgrep:</p>
+        <ul>
+            <li>Chosen because: Fast SAST with community rulesets covering OWASP Top 10</li>
+            <li>Alternatives considered: Bandit, CodeQL</li>
+            <li>Advantage: Multi-language support, low false positives, easy CI integration</li>
+        </ul>
+
+        <p>SonarQube (SonarCloud):</p>
+        <ul>
+            <li>Chosen because: Comprehensive code quality + security analysis with historical tracking</li>
+            <li>Alternatives considered: CodeClimate, Codacy</li>
+            <li>Advantage: Quality gates, technical debt tracking, free for open source</li>
+        </ul>
+
+        <p>Trivy:</p>
+        <ul>
+            <li>Chosen because: Fast, comprehensive vulnerability database, supports both filesystem and image scanning
+            </li>
+            <li>Alternatives considered: Snyk, Grype, Clair</li>
+            <li>Advantage: Regular database updates, low resource usage, multi-scanner support</li>
+        </ul>
+
+        <p>OWASP ZAP:</p>
+        <ul>
+            <li>Chosen because: Industry-standard DAST tool with baseline scan mode suitable for CI/CD</li>
+            <li>Alternatives considered: Burp Suite, Arachni</li>
+            <li>Advantage: Baseline mode prevents false positives, Docker integration, comprehensive reporting</li>
+        </ul>
+
+        <h3>5.5 Version Control System</h3>
+
+        <h3>5.5.1 Git Workflow</h3>
+        <p>The project implements a structured Git workflow with security controls:</p>
+
+        <p>Branching Strategy:</p>
+        <ul>
+            <li>main: Production-grade Flask application with strict security gates</li>
+            <li>test/juice-shop-pipeline: Validation branch with OWASP Juice Shop</li>
+        </ul>
+
+        <p>Commit Practices:</p>
+        <ul>
+            <li>Descriptive commit messages following conventional commits</li>
+            <li>Pre-commit hooks enforce code quality and secret detection</li>
+            <li>All commits attributed to developers via Git configuration</li>
+        </ul>
+
+        <p>Code Review:</p>
+        <ul>
+            <li>CODEOWNERS requires @hs-fassih approval for all PRs</li>
+            <li>Especially critical for security files (ci.yml, .gitleaks.toml, etc.)</li>
+            <li>CI status checks must pass before merge</li>
+        </ul>
+
+        <h3>5.5.2 Repository Configuration</h3>
+        <p>Security-focused repository settings:</p>
+        <pre>
+# .gitignore - Excludes sensitive files
+.env # Environment variables
+.env.local
+*.env
+!.env.example # Example template allowed
+*.db # Database files
+*.sqlite
+*.sqlite3
+instance/ # Database directory
+__pycache__/ # Python cache
+*.pyc
+.pytest_cache/ # Test cache
+zap-report.* # Security scan results
+        </pre>
+
+        <p>Version Control Security:</p>
+        <ul>
+            <li>Sensitive files excluded via .gitignore (12+ categories)</li>
+            <li>GitHub Secrets store CI/CD credentials</li>
+            <li>Repository permissions: private by default, controlled access</li>
+            <li>Branch protection rules prevent force pushes</li>
+            <li>Audit log available via GitHub settings</li>
+        </ul>
+
+        <h3>5.5.3 CODEOWNERS Configuration</h3>
+        <pre>
+# CODEOWNERS - Mandatory Review Requirements
+# Default: All files require approval
+* @hs-fassih
+
+# Critical Security Files (Extra Scrutiny)
+.github/workflows/*.yml @hs-fassih
+.gitleaks.toml @hs-fassih
+.pre-commit-config.yaml @hs-fassih
+dockerfile @hs-fassih
+requirements.txt @hs-fassih
+
+# Core Application
+app.py @hs-fassih
+scripts/zap-hook.py @hs-fassih
+        </pre>
+
+        <h3>5.5.4 Dependabot Configuration</h3>
+        <pre>
+# .github/dependabot.yml - Automated Dependency Updates
+version: 2
+updates:
+  # Python dependencies (pip)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+
+  # GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+        </pre>
+
+        <p>Automated Security Maintenance:</p>
+        <ul>
+            <li>Weekly scans on Monday mornings (09:00 UTC)</li>
+            <li>Automatic PRs for outdated dependencies</li>
+            <li>Groups minor/patch updates together</li>
+            <li>Limits concurrent PRs to avoid noise</li>
+            <li>Includes commit message prefixes for changelog generation</li>
+        </ul>
+
+        <h3>5.6 Implementation Summary</h3>
+        <p>The code implementation demonstrates:</p>
+        <ul>
+            <li>Defense in Depth: Multiple security layers ensure that if one control fails, others provide protection
+            </li>
+            <li>Secure by Default: Security features enabled without developer action (template escaping, CSRF)</li>
+            <li>Principle of Least Privilege: Minimal permissions in CI/CD, non-root containers</li>
+            <li>Separation of Concerns: Security configuration isolated in dedicated files</li>
+            <li>Fail-Safe Defaults: Errors handled gracefully without exposing system details</li>
+            <li>Complete Mediation: All inputs validated, all operations authorized</li>
+            <li>Open Design: Security through implementation, not obscurity</li>
+            <li>Psychological Acceptability: Security measures don't hinder developer productivity</li>
+        </ul>
+
+        <h2 id="testing">6. Testing & Validation</h2>
+
+        <h3>6.1 Security Testing</h3>
+
+        <h3>6.1.1 Dynamic Application Security Testing (DAST)</h3>
+        <p>OWASP ZAP baseline scan validates the running application for common web vulnerabilities:</p>
+        <pre>
+# CI/CD Pipeline Step: OWASP ZAP Baseline Scan
+- name: Run OWASP ZAP Baseline Scan
+  run: |
+    docker run --rm \
+      -v $(pwd):/zap/wrk/:rw \
+      -t ghcr.io/zaproxy/zaproxy:stable \
+      zap-baseline.py \
+      -t http://172.17.0.1:5000 \
+      -r zap-report.html \
+      -x zap-report.xml \
+      -J zap-report.json
+
+# Custom Hook Script: zap-hook.py
+def parse_zap_xml(xml_file):
+    """Parse ZAP XML report and return alert counts by severity"""
+    alerts = {"High": 0, "Medium": 0, "Low": 0, "Informational": 0}
+    for alert in site.findall(".//alertitem"):
+        risk_level = risk.text.split()[0]  # Extract severity
+        if risk_level in alerts:
+            alerts[risk_level] += 1
+    return alerts
+
+# Fail build only on High severity findings
+if alerts["High"] > 0:
+    print(f"❌ DAST SCAN FAILED! Found {alerts['High']} High severity alerts")
+    sys.exit(1)
+        </pre>
+
+        <p>DAST Coverage:</p>
+        <table>
+            <tr>
+                <th>VULNERABILITY TYPE</th>
+                <th>TEST METHOD</th>
+                <th>DETECTION CAPABILITY</th>
+            </tr>
+            <tr>
+                <td>Cross-Site Scripting (XSS)</td>
+                <td>Baseline scan with reflection checks</td>
+                <td>Detects reflected and stored XSS</td>
+            </tr>
+            <tr>
+                <td>SQL Injection</td>
+                <td>Error-based and time-based payloads</td>
+                <td>Identifies SQL injection points</td>
+            </tr>
+            <tr>
+                <td>CSRF</td>
+                <td>Token validation analysis</td>
+                <td>Validates CSRF token presence</td>
+            </tr>
+            <tr>
+                <td>Security Headers</td>
+                <td>HTTP header inspection</td>
+                <td>Checks X-Frame-Options, CSP, HSTS</td>
+            </tr>
+            <tr>
+                <td>Cookie Security</td>
+                <td>Cookie attribute analysis</td>
+                <td>Validates Secure, HttpOnly, SameSite</td>
+            </tr>
+            <tr>
+                <td>Information Disclosure</td>
+                <td>Error message analysis</td>
+                <td>Detects sensitive data exposure</td>
+            </tr>
+        </table>
+
+        <h3>6.1.2 Static Application Security Testing (SAST)</h3>
+        <p>Multiple SAST tools analyze source code for security vulnerabilities:</p>
+
+        <p>Semgrep Configuration:</p>
+        <pre>
+# Branch-specific ruleset selection
+if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+  # JavaScript/TypeScript/Node.js for Juice Shop
+  semgrep --config p/owasp-top-ten \
+    --config p/javascript \
+    --config p/typescript \
+    --config p/nodejs \
+    --json -o semgrep-report.json .
+else
+  # Python for Flask application
+  semgrep --config p/owasp-top-ten \
+    --config p/python \
+    --json -o semgrep-report.json .
+fi
+
+# Fail on ERROR severity findings
+ERR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' \
+  semgrep-report.json)
+if [ "$ERR_COUNT" -gt 0 ]; then
+  echo "Failing CI due to Semgrep ERROR findings"
+  exit 1
+fi
+        </pre>
+
+        <p>SonarQube Configuration:</p>
+        <pre>
+# sonar-project.properties
+sonar.projectKey=hs-fassih_CICD_Security
+sonar.organization=hs-fassih
+sonar.sources=.
+sonar.exclusions=**/node_modules/**,**/venv/**,**/.pytest_cache/**
+
+# Branch-specific language override in CI
+if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+  SONAR_ARGS="-Dsonar.language=js"
+else
+  SONAR_ARGS="-Dsonar.language=py"
+fi
+
+# Quality gate check (HIGH and CRITICAL only)
+CRITICAL_ISSUES=$(curl -s -H "Authorization: Bearer $SONAR_TOKEN" \
+  "https://sonarcloud.io/api/issues/search?componentKeys=$PROJECT_KEY&severities=CRITICAL")
+HIGH_ISSUES=$(curl -s -H "Authorization: Bearer $SONAR_TOKEN" \
+  "https://sonarcloud.io/api/issues/search?componentKeys=$PROJECT_KEY&severities=HIGH")
+if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
+  echo "❌ Failing CI: Found HIGH/CRITICAL severity issues"
+  exit 1
+fi
+        </pre>
+
+        <p>SAST Tool Comparison:</p>
+        <table>
+            <tr>
+                <th>TOOL</th>
+                <th>STRENGTHS</th>
+                <th>DETECTION FOCUS</th>
+                <th>INTEGRATION</th>
+            </tr>
+            <tr>
+                <td>Semgrep</td>
+                <td>Fast, low false positives, multi-language</td>
+                <td>OWASP Top 10, custom patterns</td>
+                <td>CLI, JSON output</td>
+            </tr>
+            <tr>
+                <td>SonarQube</td>
+                <td>Code quality + security, historical tracking</td>
+                <td>Code smells, vulnerabilities, technical debt</td>
+                <td>API, quality gates</td>
+            </tr>
+        </table>
+
+        <h3>6.1.3 Software Composition Analysis (SCA)</h3>
+        <p>Trivy scans dependencies for known CVEs:</p>
+        <pre>
+# Trivy filesystem scan for vulnerabilities and secrets
+- name: Run Trivy SCA (filesystem mode)
+  run: |
+    # Install Trivy
+    sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | \
+      sudo apt-key add -
+    echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | \
+      sudo tee -a /etc/apt/sources.list.d/trivy.list
+    sudo apt-get update && sudo apt-get install trivy -y
+
+    # Run Trivy with HIGH and CRITICAL severity filtering
+    trivy fs --security-checks vuln,secret \
+      --exit-code 1 \
+      --severity HIGH,CRITICAL .
+        </pre>
+
+        <p>SCA Coverage:</p>
+        <ul>
+            <li>Dependency Scanning: requirements.txt (Python), package.json (Node.js), Dockerfile (base images)</li>
+            <li>Vulnerability Database: NVD, GitHub Advisory Database, Alpine SecDB, Red Hat Security Data</li>
+            <li>Update Frequency: Trivy database updated daily via ghcr.io/aquasecurity/trivy-db</li>
+            <li>Severity Filtering: Only HIGH and CRITICAL CVEs block builds</li>
+            <li>Secret Detection: Scans for API keys, tokens, passwords in dependencies</li>
+        </ul>
+
+        <h3>6.1.4 Secrets Detection</h3>
+        <p>Gitleaks prevents credential leakage:</p>
+        <pre>
+# Pre-commit hook (.pre-commit-config.yaml)
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.29.1
+    hooks:
+      - id: gitleaks
+
+# CI/CD Pipeline (GitHub Actions)
+- name: Run Gitleaks Secrets Scan
+  uses: gitleaks/gitleaks-action@v2
+  with:
+    fetch-depth: 0  # Full git history for comprehensive scanning
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# Custom Configuration (.gitleaks.toml)
+[[rules]]
+id = "flask-secret-key"
+description = "Flask SECRET_KEY"
+regex = '''SECRET_KEY\s*=\s*["']([^"']{16,})["']'''
+
+[allowlist]
+paths = [
+  '''.env.example''',
+  '''.gitleaks.toml''',
+  '''test-cases.md''',
+]
+        </pre>
+
+        <p>Secret Detection Coverage:</p>
+        <ul>
+            <li>AWS Access Keys, Secret Keys</li>
+            <li>GitHub Personal Access Tokens, OAuth Tokens</li>
+            <li>Flask SECRET_KEY (custom rule)</li>
+            <li>Database connection strings</li>
+            <li>Private keys (RSA, DSA, EC, OpenSSH)</li>
+            <li>API keys (Slack, Stripe, Twilio, etc.)</li>
+            <li>Generic secrets (regex patterns)</li>
+        </ul>
+
+        <h3>6.2 Functional Testing</h3>
+
+        <h3>6.2.1 Unit Test Implementation</h3>
+        <p>Pytest validates application functionality with isolated test database:</p>
+        <pre>
+# Test Configuration (tests/basic_test.py)
+class FlaskAppTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        """Set up isolated in-memory test database"""
+        cls.app.config["TESTING"] = True
+        cls.app.config["SECRET_KEY"] = "test-secret-key-for-testing-only"
+        cls.app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        cls.app.config["WTF_CSRF_ENABLED"] = False  # Disable CSRF for testing
+        cls.client = cls.app.test_client()
+
+    def setUp(self):
+        """Create fresh tables before each test"""
+        self.db.create_all()
+
+    def tearDown(self):
+        """Clean up after each test"""
+        self.db.session.remove()
+        self.db.drop_all()
+        </pre>
+
+        <h3>6.2.2 Test Cases</h3>
+        <table>
+            <tr>
+                <th>TEST ID</th>
+                <th>DESCRIPTION</th>
+                <th>EXPECTED RESULT</th>
+                <th>STATUS</th>
+            </tr>
+            <tr>
+                <td>test_1</td>
+                <td>Check if / returns 200</td>
+                <td>GET request to home page returns HTTP 200</td>
+                <td>✅ PASS</td>
+            </tr>
+            <tr>
+                <td>test_2</td>
+                <td>Check /add works properly by adding test user</td>
+                <td>User created with first_name="test", last_name="user", email="test@user.com", age=18,
+                    city="Islamabad"</td>
+                <td>✅ PASS</td>
+            </tr>
+            <tr>
+                <td>test_3</td>
+                <td>Verify GET /add returns form</td>
+                <td>GET request returns status 200 with add user form</td>
+                <td>✅ PASS</td>
+            </tr>
+            <tr>
+                <td>test_4</td>
+                <td>Verify form validation prevents incomplete submissions</td>
+                <td>Missing required fields should not create user</td>
+                <td>✅ PASS</td>
+            </tr>
+            <tr>
+                <td>test_5</td>
+                <td>Verify duplicate emails are prevented</td>
+                <td>Second user with same email should not be created</td>
+                <td>✅ PASS</td>
+            </tr>
+            <tr>
+                <td>test_6</td>
+                <td>Verify index displays users after creation</td>
+                <td>After adding user, index page works correctly</td>
+                <td>✅ PASS</td>
+            </tr>
+        </table>
+
+        <h3>6.2.3 Test Coverage</h3>
+        <p>Functional test coverage across application features:</p>
+        <ul>
+            <li>Create Operation: User creation with validation (test_2, test_4)</li>
+            <li>Read Operation: Home page listing (test_1, test_6)</li>
+            <li>Input Validation: Required fields, duplicate emails (test_4, test_5)</li>
+            <li>Database Integrity: Isolated test database, rollback support (setUp/tearDown)</li>
+            <li>HTTP Status Codes: 200 OK, 302 Redirect validation</li>
+            <li>CSRF Handling: CSRF disabled for testing (WTF_CSRF_ENABLED=False)</li>
+        </ul>
+
+        <h3>6.3 CI/CD Pipeline Testing</h3>
+
+        <h3>6.3.1 Pre-commit Hooks Validation</h3>
+        <p>Pre-commit hooks re-validated in CI to prevent bypass:</p>
+        <pre>
+# CI/CD Step: Pre-commit Hooks Validation
+- name: Run pre-commit hooks on all files
+  run: |
+    python -m pip install --upgrade pip
+    pip install pre-commit
+    pre-commit run --all-files --show-diff-on-failure
+    env:
+      SKIP: no-commit-to-branch  # Skip branch protection hooks in CI
+        </pre>
+
+        <p>Pre-commit Hook Coverage:</p>
+        <table>
+            <tr>
+                <th>HOOK</th>
+                <th>PURPOSE</th>
+                <th>FAILURE ACTION</th>
+            </tr>
+            <tr>
+                <td>trailing-whitespace</td>
+                <td>Remove trailing whitespace</td>
+                <td>Auto-fix and warn</td>
+            </tr>
+            <tr>
+                <td>end-of-file-fixer</td>
+                <td>Ensure files end with newline</td>
+                <td>Auto-fix and warn</td>
+            </tr>
+            <tr>
+                <td>check-yaml</td>
+                <td>Validate YAML syntax</td>
+                <td>Fail commit</td>
+            </tr>
+            <tr>
+                <td>check-added-large-files</td>
+                <td>Prevent files &gt;500KB</td>
+                <td>Fail commit</td>
+            </tr>
+            <tr>
+                <td>black (v25.11.0)</td>
+                <td>Python code formatting</td>
+                <td>Auto-fix and warn</td>
+            </tr>
+            <tr>
+                <td>gitleaks (v8.29.1)</td>
+                <td>Secret detection</td>
+                <td>Fail commit (blocks push)</td>
+            </tr>
+        </table>
+
+        <h3>6.3.2 Multi-Stage Security Gates</h3>
+        <p>CI/CD pipeline implements defense-in-depth with sequential security gates:</p>
+        <table>
+            <tr>
+                <th>STAGE</th>
+                <th>SECURITY GATES</th>
+                <th>FAILURE BEHAVIOR</th>
+            </tr>
+            <tr>
+                <td>Stage 1: Pre-Build</td>
+                <td>Secrets Detection (Gitleaks), Pre-commit Validation</td>
+                <td>Block pipeline immediately</td>
+            </tr>
+            <tr>
+                <td>Stage 2: Build</td>
+                <td>Dependency Installation, Unit Tests (Pytest)</td>
+                <td>Stop before security scans</td>
+            </tr>
+            <tr>
+                <td>Stage 3: Security Scans</td>
+                <td>Trivy SCA, Semgrep SAST, SonarQube SAST</td>
+                <td>Block deployment if HIGH/CRITICAL found</td>
+            </tr>
+            <tr>
+                <td>Stage 4: Container</td>
+                <td>Docker Build, Trivy Image Scan</td>
+                <td>Prevent container push to GHCR</td>
+            </tr>
+            <tr>
+                <td>Stage 5: Runtime</td>
+                <td>OWASP ZAP DAST</td>
+                <td>Fail deployment if HIGH alerts found</td>
+            </tr>
+        </table>
+
+        <h3>6.3.3 Branch-Specific Testing Strategy</h3>
+        <p>Dual-branch strategy validates security tools effectiveness:</p>
+        <table>
+            <tr>
+                <th>BRANCH</th>
+                <th>APPLICATION</th>
+                <th>TESTING APPROACH</th>
+                <th>EXPECTED OUTCOME</th>
+            </tr>
+            <tr>
+                <td>main</td>
+                <td>Flask CRUD (secure baseline)</td>
+                <td>Python-specific tools, strict gates</td>
+                <td>All security gates pass</td>
+            </tr>
+            <tr>
+                <td>test/juice-shop-pipeline</td>
+                <td>OWASP Juice Shop (vulnerable app)</td>
+                <td>JavaScript-specific tools, continue-on-error</td>
+                <td>Security tools detect vulnerabilities</td>
+            </tr>
+        </table>
+
+        <p>Validation Results:</p>
+        <ul>
+            <li>Main Branch: All security gates pass consistently (0 HIGH/CRITICAL findings)</li>
+            <li>Test Branch: Security tools correctly identify known vulnerabilities in Juice Shop</li>
+            <li>False Negative Prevention: Dual-branch approach ensures tools are not mis-configured</li>
+            <li>Tool Effectiveness: Validates SAST/DAST tools can detect real vulnerabilities</li>
+        </ul>
+
+        <h3>6.4 Testing Summary</h3>
+        <p>Comprehensive testing strategy ensures application security and functionality:</p>
+        <table>
+            <tr>
+                <th>TESTING CATEGORY</th>
+                <th>TOOLS USED</th>
+                <th>COVERAGE</th>
+                <th>PASS RATE</th>
+            </tr>
+            <tr>
+                <td>Security Testing</td>
+                <td>Gitleaks, Semgrep, SonarQube, Trivy, ZAP</td>
+                <td>OWASP Top 10, CVEs, Secrets</td>
+                <td>100%</td>
+            </tr>
+            <tr>
+                <td>Functional Testing</td>
+                <td>Pytest</td>
+                <td>6 test cases (CRUD operations)</td>
+                <td>100%</td>
+            </tr>
+            <tr>
+                <td>Code Quality</td>
+                <td>Black, Pre-commit</td>
+                <td>PEP 8, formatting, YAML validation</td>
+                <td>100%</td>
+            </tr>
+            <tr>
+                <td>Dependency Security</td>
+                <td>Trivy, Dependabot</td>
+                <td>Python packages, Docker images</td>
+                <td>100%</td>
+            </tr>
+        </table>
+
+        <p>Key Achievements:</p>
+        <ul>
+            <li>✅ Zero HIGH/CRITICAL security findings in production code</li>
+            <li>✅ 100% functional test pass rate</li>
+            <li>✅ Comprehensive OWASP Top 10 coverage via SAST and DAST</li>
+            <li>✅ Automated dependency updates via Dependabot (weekly scans)</li>
+            <li>✅ Multi-layer security validation (5 stages, 8+ tools)</li>
+            <li>✅ Branch-specific testing validates tool effectiveness</li>
+            <li>✅ Pre-commit hooks re-validated in CI (bypass prevention)</li>
+        </ul>
+
+
+
+
+        <h2 id="team-contribution">Team Contribution</h2>
+        <p>The following table highlights the contributions of each team member to the project:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Contributions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Syed Fassih Ul Hassny</td>
+                    <td>
+                        <ul>
+                            <li>Project lead and architecture design</li>
+                            <li>Implementation of CI/CD pipeline</li>
+                            <li>Integration of security tools (Gitleaks, Semgrep, Trivy)</li>
+                            <li>Documentation and report writing</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ahmed Umar Rehman</td>
+                    <td>
+                        <ul>
+                            <li>Development of Flask CRUD application</li>
+                            <li>Implementation of secure coding practices</li>
+                            <li>Unit testing with Pytest</li>
+                            <li>Database design and management</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Hunain Raza</td>
+                    <td>
+                        <ul>
+                            <li>Configuration of GitHub Actions workflows</li>
+                            <li>Integration of OWASP ZAP for DAST</li>
+                            <li>Threat modeling and risk analysis</li>
+                            <li>Validation of security tools with Juice Shop</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Abdul Munim</td>
+                    <td>
+                        <ul>
+                            <li>Report of Project</li>
+                            <li>Testing of the CI/CD pipeline</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="conclusion">7. Conclusion</h2>
+
+        <h3>7.1 Project Summary</h3>
+        <p>This project successfully implemented a comprehensive DevSecOps CI/CD security pipeline that integrates
+            security practices at every stage of the software development lifecycle. The solution demonstrates how
+            security can be automated, scalable, and seamlessly integrated into modern development workflows without
+            compromising developer productivity.</p>
+
+        <p>Key Deliverables:</p>
+        <ul>
+            <li>Production-grade Flask CRUD application with comprehensive security controls</li>
+            <li>17-step GitHub Actions CI/CD pipeline with multi-layer security validation</li>
+            <li>8+ security tools integrated across 5 security layers (secrets, SAST, SCA, container, DAST)</li>
+            <li>Dual-branch validation strategy proving tool effectiveness</li>
+            <li>Comprehensive threat modeling with STRIDE/DREAD analysis covering 15 threats</li>
+            <li>Automated dependency management with weekly security updates</li>
+            <li>Zero HIGH/CRITICAL security findings in production code</li>
+        </ul>
+
+        <h3>7.2 Achievements Against Objectives</h3>
+        <table>
+            <tr>
+                <th>OBJECTIVE</th>
+                <th>IMPLEMENTATION</th>
+                <th>STATUS</th>
+            </tr>
+            <tr>
+                <td>Integrate security into CI/CD pipeline</td>
+                <td>8+ tools across 5 security layers with automated gates</td>
+                <td>✅ Achieved</td>
+            </tr>
+            <tr>
+                <td>Detect vulnerabilities early in SDLC</td>
+                <td>Pre-commit hooks + CI validation blocks vulnerable code</td>
+                <td>✅ Achieved</td>
+            </tr>
+            <tr>
+                <td>Automate security testing</td>
+                <td>SAST, SCA, DAST, secrets detection fully automated</td>
+                <td>✅ Achieved</td>
+            </tr>
+            <tr>
+                <td>Validate tool effectiveness</td>
+                <td>Dual-branch strategy with Juice Shop validation</td>
+                <td>✅ Achieved</td>
+            </tr>
+            <tr>
+                <td>Demonstrate secure coding practices</td>
+                <td>Flask app with OWASP guidelines, zero HIGH/CRITICAL issues</td>
+                <td>✅ Achieved</td>
+            </tr>
+            <tr>
+                <td>Create maintainable security posture</td>
+                <td>Dependabot, quality gates, comprehensive documentation</td>
+                <td>✅ Achieved</td>
+            </tr>
+        </table>
+
+        <h3>7.3 Benefits Realized</h3>
+
+        <h3>7.3.1 Security Benefits</h3>
+        <ul>
+            <li>Early Vulnerability Detection: Pre-commit hooks prevent vulnerable code from entering repository
+                (shift-left security)</li>
+            <li>Comprehensive Coverage: Multi-tool approach covers OWASP Top 10, CVEs, secrets, code quality</li>
+            <li>Automated Remediation: Dependabot automatically creates PRs for vulnerable dependencies</li>
+            <li>Defense in Depth: 5 security layers provide overlapping protection</li>
+            <li>Continuous Validation: Every commit triggers full security scan suite</li>
+            <li>False Negative Prevention: Dual-branch testing ensures tools are correctly configured</li>
+        </ul>
+
+        <h3>7.3.2 Development Benefits</h3>
+        <ul>
+            <li>Fast Feedback: Security issues identified within minutes of commit</li>
+            <li>Reduced Manual Work: Automated scans eliminate need for manual security reviews</li>
+            <li>Code Quality: Black formatter and pre-commit hooks ensure consistent style</li>
+            <li>Developer Confidence: Comprehensive testing provides confidence in code security</li>
+            <li>Documentation: Extensive inline comments and README support onboarding</li>
+            <li>Scalability: Pipeline handles both Python and JavaScript projects</li>
+            <li>Maintainability: Configuration-driven design allows easy tool updates</li>
+        </ul>
+
+        <h3>7.3.3 Operational Benefits</h3>
+        <ul>
+            <li>Scalability: Pipeline handles both Python and JavaScript projects</li>
+            <li>Audit Trail: GitHub Actions logs provide complete audit history</li>
+            <li>Cost Efficiency: Open-source tools minimize licensing costs</li>
+            <li>Compliance: Automated security controls support compliance requirements</li>
+        </ul>
+
+        <h3>7.4 Lessons Learned</h3>
+
+        <h3>7.4.1 Technical Lessons</h3>
+        <ul>
+            <li>Tool Configuration is Critical: Incorrectly configured tools can provide false sense of security (e.g.,
+                Python tools scanning JavaScript app)</li>
+            <li>Validation Testing Essential: Always test security tools against known vulnerable applications to ensure
+                effectiveness</li>
+            <li>Error Handling Matters: Bash scripts need explicit null handling (jq '.total // 0') to prevent silent
+                failures</li>
+            <li>Fail-Fast Principle: Using 'set -e' in bash scripts ensures errors are caught immediately</li>
+            <li>Branch-Specific Logic: Multi-language projects require conditional tool configuration</li>
+            <li>Continue-on-Error Trade-offs: While useful for validation, can hide real issues if used in production
+            </li>
+        </ul>
+
+        <h3>7.4.2 Process Lessons</h3>
+        <ul>
+            <li>Pre-commit Hooks Must Be Re-validated: Developers can bypass local hooks, CI validation is essential
+            </li>
+            <li>Security Gates Should Be Graduated: Block only HIGH/CRITICAL issues initially, gradually increase
+                strictness</li>
+            <li>Documentation is Investment: Comprehensive documentation reduces onboarding time and support burden</li>
+            <li>Dual-Branch Strategy Valuable: Separate validation branch allows testing without breaking production
+            </li>
+            <li>Code Ownership Enforces Quality: CODEOWNERS file ensures security-critical files receive proper review
+            </li>
+            <li>Multi-Tool Approach Superior: No single tool catches all issues, overlapping coverage essential</li>
+        </ul>
+
+        <h3>7.4.3 Tool Selection Lessons</h3>
+        <ul>
+            <li>Multi-Tool Approach Superior: No single tool catches all issues, overlapping coverage essential</li>
+            <li>Open Source Can Rival Commercial: Gitleaks, Semgrep, Trivy provide enterprise-grade capabilities</li>
+            <li>Cloud Services Reduce Maintenance: SonarCloud eliminates need for self-hosted infrastructure</li>
+            <li>Container-Based Tools Simplify CI: Docker-based tools (ZAP) avoid complex CI environment setup</li>
+            <li>Regular Updates Critical: Trivy database updates daily, ensuring latest CVE coverage</li>
+        </ul>
+
+        <h3>7.5 Challenges and Solutions</h3>
+        <table>
+            <tr>
+                <th>CHALLENGE</th>
+                <th>SOLUTION IMPLEMENTED</th>
+                <th>OUTCOME</th>
+            </tr>
+            <tr>
+                <td>False passing tests on vulnerable Juice Shop</td>
+                <td>Implemented branch-specific scanning configurations</td>
+                <td>Tools now correctly detect vulnerabilities</td>
+            </tr>
+            <tr>
+                <td>SonarQube API returning null values</td>
+                <td>Added jq default value handling (.total // 0)</td>
+                <td>Eliminated bash comparison errors</td>
+            </tr>
+            <tr>
+                <td>Silent failures in Semgrep</td>
+                <td>Added 'set -e' and explicit error code checks</td>
+                <td>Errors now properly fail builds</td>
+            </tr>
+            <tr>
+                <td>Multi-language project complexity</td>
+                <td>Conditional logic based on git branch</td>
+                <td>Single pipeline handles both languages</td>
+            </tr>
+            <tr>
+                <td>Trivy filesystem scan failures</td>
+                <td>Investigated scan scope, added detailed logging</td>
+                <td>Better visibility into scan results</td>
+            </tr>
+        </table>
+
+        <h3>7.6 Future Improvements</h3>
+
+        <h3>7.6.1 Short-Term Enhancements</h3>
+        <ul>
+            <li>Security Headers: Implement Flask-Talisman for automatic security headers (HSTS, CSP, X-Frame-Options)
+            </li>
+            <li>Rate Limiting: Add Flask-Limiter to prevent brute-force attacks on forms</li>
+            <li>Input Sanitization: Implement Bleach library for HTML sanitization in user inputs</li>
+            <li>Session Management: Configure session timeout and secure cookie attributes</li>
+            <li>Logging and Monitoring: Integrate centralized logging (ELK stack) for security event monitoring</li>
+            <li>Container Hardening: Use distroless base images, run as non-root user, implement read-only filesystem
+            </li>
+        </ul>
+
+        <h3>7.6.2 Medium-Term Enhancements</h3>
+        <ul>
+            <li>API Security: Implement OAuth2/JWT authentication for API endpoints</li>
+            <li>Database Encryption: Enable encryption at rest for SQLite database</li>
+            <li>Secrets Management: Migrate to HashiCorp Vault or AWS Secrets Manager</li>
+            <li>Infrastructure as Code: Add Terraform/CloudFormation with security scanning (Checkov, tfsec)</li>
+            <li>Fuzzing: Integrate AFL or libFuzzer for automated input fuzzing</li>
+            <li>Penetration Testing: Schedule periodic professional penetration tests</li>
+            <li>Compliance Scanning: Add compliance checks (PCI-DSS, HIPAA, SOC 2)</li>
+        </ul>
+
+        <h3>7.6.3 Long-Term Enhancements</h3>
+        <ul>
+            <li>Kubernetes Deployment: Containerize and deploy to Kubernetes with pod security policies</li>
+            <li>Service Mesh: Implement Istio for network-level security (mTLS, traffic policies)</li>
+            <li>Runtime Security: Add Falco for runtime threat detection</li>
+            <li>Bug Bounty Program: Launch responsible disclosure program for external researchers</li>
+            <li>Security Champions: Train team members as security champions for peer review</li>
+            <li>Chaos Engineering: Implement chaos testing to validate security under failure conditions</li>
+            <li>AI-Powered Security: Explore ML-based anomaly detection for security events</li>
+        </ul>
+
+        <h3>7.7 Final Remarks</h3>
+        <p>This project demonstrates that security can be seamlessly integrated into modern software development without
+            sacrificing velocity or developer experience. By adopting a DevSecOps approach with automated security
+            gates, comprehensive testing, and defense-in-depth principles, we have created a secure, maintainable, and
+            scalable application development pipeline.</p>
+
+        <p>The dual-branch validation strategy proved particularly valuable, ensuring that our security tools are
+            correctly configured and capable of detecting real vulnerabilities. This approach addresses a critical gap
+            in many security pipelines: the assumption that passing security gates means the application is secure, when
+            in reality the tools may be misconfigured.</p>
+
+        <p>Most importantly, this project shows that security is not a one-time activity but a continuous process that
+            must be embedded throughout the SDLC. With automated tools, clear policies, and a culture of security
+            awareness, organizations can significantly reduce their attack surface while maintaining rapid development
+            cycles.</p>
+
+        <p>The lessons learned and best practices documented in this project can serve as a blueprint for organizations
+            looking to implement or improve their DevSecOps practices, ultimately contributing to a more secure software
+            ecosystem.</p>
+
+        <h2 id="references">8. References</h2>
+
+        <h3>8.1 Security Frameworks and Standards</h3>
+        <ul>
+            <li>OWASP Foundation. (2021). OWASP Top 10 - 2021: The Ten Most Critical Web Application Security Risks.
+                Retrieved from https://owasp.org/Top10/</li>
+            <li>MITRE Corporation. (2024). Common Vulnerabilities and Exposures (CVE) Database. Retrieved from
+                https://cve.mitre.org/</li>
+            <li>Microsoft Security Response Center. (2009). The STRIDE Threat Model. Microsoft Developer Network.</li>
+            <li>OWASP Foundation. (2024). OWASP Juice Shop: Probably the most modern and sophisticated insecure web
+                application. Retrieved from https://owasp.org/www-project-juice-shop/</li>
+            <li>National Institute of Standards and Technology (NIST). (2018). Framework for Improving Critical
+                Infrastructure Cybersecurity, Version 1.1.</li>
+            <li>Center for Internet Security. (2024). CIS Controls Version 8. Retrieved from
+                https://www.cisecurity.org/controls/</li>
+        </ul>
+
+        <h3>8.2 Development Frameworks and Tools</h3>
+        <ul>
+            <li>Pallets Projects. (2024). Flask Documentation (Version 3.1.2). Retrieved from
+                https://flask.palletsprojects.com/</li>
+            <li>Pallets Projects. (2024). Flask-SQLAlchemy Documentation (Version 3.1.1). Retrieved from
+                https://flask-sqlalchemy.palletsprojects.com/</li>
+            <li>WTForms Team. (2024). Flask-WTF Documentation (Version 1.2.2). Retrieved from
+                https://flask-wtf.readthedocs.io/</li>
+            <li>Python Software Foundation. (2024). Python Documentation (Version 3.14). Retrieved from
+                https://docs.python.org/3.14/</li>
+            <li>Granger, T. (2024). python-dotenv: Reads key-value pairs from .env file. GitHub. Retrieved from
+                https://github.com/theskumar/python-dotenv</li>
+        </ul>
+
+        <h3>8.3 Security Scanning Tools</h3>
+        <ul>
+            <li>Gitleaks. (2024). Gitleaks: Protect and discover secrets using Gitleaks (Version 8.29.1). GitHub.
+                Retrieved from https://github.com/gitleaks/gitleaks</li>
+            <li>Semgrep, Inc. (2024). Semgrep: Lightweight static analysis for many languages. Retrieved from
+                https://semgrep.dev/</li>
+            <li>SonarSource. (2024). SonarQube Documentation. Retrieved from https://docs.sonarqube.org/</li>
+            <li>SonarSource. (2024). SonarCloud: Cloud-based Code Quality and Security service. Retrieved from
+                https://sonarcloud.io/</li>
+            <li>Aqua Security. (2024). Trivy: A Simple and Comprehensive Vulnerability Scanner for Containers. GitHub.
+                Retrieved from https://github.com/aquasecurity/trivy</li>
+            <li>OWASP Foundation. (2024). OWASP ZAP: Zed Attack Proxy. Retrieved from https://www.zaproxy.org/</li>
+            <li>Bandit Development Team. (2024). Bandit: Security linter for Python. GitHub. Retrieved from
+                https://github.com/PyCQA/bandit</li>
+        </ul>
+
+        <h3>8.4 CI/CD and DevOps</h3>
+        <ul>
+            <li>GitHub, Inc. (2024). GitHub Actions Documentation. Retrieved from https://docs.github.com/en/actions
+            </li>
+            <li>Docker, Inc. (2024). Docker Documentation. Retrieved from https://docs.docker.com/</li>
+            <li>Docker, Inc. (2024). Docker Compose Documentation. Retrieved from https://docs.docker.com/compose/</li>
+            <li>GitHub, Inc. (2024). GitHub Container Registry (GHCR) Documentation. Retrieved from
+                https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+            </li>
+            <li>GitHub, Inc. (2024). Dependabot Documentation. Retrieved from
+                https://docs.github.com/en/code-security/dependabot</li>
+            <li>Pre-commit Contributors. (2024). pre-commit: A framework for managing multi-language pre-commit hooks.
+                Retrieved from https://pre-commit.com/</li>
+        </ul>
+
+        <h3>8.5 Code Quality and Testing</h3>
+        <ul>
+            <li>Python Software Foundation. (2001). PEP 8 -- Style Guide for Python Code. Retrieved from
+                https://www.python.org/dev/peps/pep-0008/</li>
+            <li>Python Black Contributors. (2024). Black: The uncompromising Python code formatter (Version 25.11.0).
+                GitHub. Retrieved from https://github.com/psf/black</li>
+            <li>Pytest Development Team. (2024). pytest: helps you write better programs. Retrieved from
+                https://docs.pytest.org/</li>
+            <li>Python unittest Documentation. (2024). unittest — Unit testing framework. Python Standard Library.</li>
+        </ul>
+
+        <h3>8.6 Security Best Practices and Guides</h3>
+        <ul>
+            <li>OWASP Foundation. (2024). OWASP Cheat Sheet Series. Retrieved from https://cheatsheetseries.owasp.org/
+            </li>
+            <li>OWASP Foundation. (2024). Input Validation Cheat Sheet. OWASP Cheat Sheet Series.</li>
+            <li>OWASP Foundation. (2024). SQL Injection Prevention Cheat Sheet. OWASP Cheat Sheet Series.</li>
+            <li>OWASP Foundation. (2024). Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet. OWASP Cheat Sheet
+                Series.</li>
+            <li>OWASP Foundation. (2024). Cross-Site Scripting (XSS) Prevention Cheat Sheet. OWASP Cheat Sheet Series.
+            </li>
+            <li>OWASP Foundation. (2024). Session Management Cheat Sheet. OWASP Cheat Sheet Series.</li>
+            <li>OWASP Foundation. (2024). Secrets Management Cheat Sheet. OWASP Cheat Sheet Series.</li>
+            <li>Mozilla Developer Network. (2024). Web Security Guidelines. Retrieved from
+                https://developer.mozilla.org/en-US/docs/Web/Security</li>
+        </ul>
+
+        <h3>8.7 Academic and Research Papers</h3>
+        <ul>
+            <li>Bass, L., Weber, I., & Zhu, L. (2015). DevOps: A Software Architect's Perspective. Addison-Wesley
+                Professional.</li>
+            <li>Kim, G., Debois, P., Willis, J., & Humble, J. (2016). The DevOps Handbook: How to Create World-Class
+                Agility, Reliability, and Security in Technology Organizations. IT Revolution Press.</li>
+            <li>Myrbakken, H., & Colomo-Palacios, R. (2017). "DevSecOps: A Multivocal Literature Review." Software
+                Quality Professional, 19(3), 17-29.</li>
+            <li>Rajapakse, R. N., Zahedi, M., Babar, M. A., & Shen, H. (2022). "Challenges and Solutions when Adopting
+                DevSecOps: A Systematic Review." Information and Software Technology, 141, 106700.</li>
+        </ul>
+
+        <h3>8.8 Container and Infrastructure Security</h3>
+        <ul>
+            <li>Center for Internet Security. (2024). CIS Docker Benchmark. Retrieved from
+                https://www.cisecurity.org/benchmark/docker</li>
+            <li>National Security Agency (NSA). (2021). Kubernetes Hardening Guidance. Cybersecurity Technical Report.
+            </li>
+            <li>NIST. (2017). Application Container Security Guide (SP 800-190). National Institute of Standards and
+                Technology.</li>
+        </ul>
+
+        <h3>8.9 Version Control and Collaboration</h3>
+        <ul>
+            <li>Git Documentation. (2024). Git Reference Manual. Retrieved from https://git-scm.com/docs</li>
+            <li>GitHub, Inc. (2024). CODEOWNERS Documentation. Retrieved from
+                https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+            </li>
+            <li>Atlassian. (2024). Gitflow Workflow. Retrieved from
+                https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow</li>
+        </ul>
+
+        <h3>8.10 Additional Resources</h3>
+        <ul>
+            <li>defusedxml Contributors. (2024). defusedxml: XML bomb protection for Python stdlib modules. GitHub.
+                Retrieved from https://github.com/tiran/defusedxml</li>
+            <li>Bootstrap Team. (2024). Bootstrap 5 Documentation. Retrieved from https://getbootstrap.com/docs/5.3/
+            </li>
+            <li>Jinja Team. (2024). Jinja2 Template Engine Documentation. Retrieved from
+                https://jinja.palletsprojects.com/</li>
+            <li>SQLite Consortium. (2024). SQLite Documentation. Retrieved from https://www.sqlite.org/docs.html</li>
+        </ul>
+
+        <p>End of Report</p>
+        <p>DevSecOps CI/CD Security Pipeline Implementation</p>
+        <p>Generated: November 28, 2025</p>
+
+        <div class="footer">SSD Project i22-1730 i22-1580 i22-1614 i22-7425</div>
+
+    </div>
+</body>
+
+</html>
