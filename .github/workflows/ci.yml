@@ -138,7 +138,7 @@ jobs:
           fi
         continue-on-error: true
 
-      # Step 7: Run SonarQube Analysis
+      # Step 7: Run SonarQube Analysis (branch-specific language configuration)
       - name: Run SonarQube analysis
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
@@ -149,6 +149,8 @@ jobs:
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=hs-fassih
+            ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' && '-Dsonar.sources=juice-shop -Dsonar.language=js,ts -Dsonar.javascript.node.maxspace=4096 -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/coverage/**,**/frontend/**' || '-Dsonar.sources=. -Dsonar.language=py -Dsonar.python.version=3.13 -Dsonar.exclusions=tests/**,**/__pycache__/**,**/*.pyc,.pytest_cache/**,instance/**,node_modules/**,juice-shop/**' }}
+        # continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 8: Check SonarQube Quality Gate (HIGH and CRITICAL only)
       - name: Check SonarQube Quality Gate
@@ -199,6 +201,7 @@ jobs:
           fi
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # continue-on-error: ${{ github.ref == 'refs/heads/test/juice-shop-pipeline' }}
 
       # Step 9: Login to GitHub Container Registry
       - name: Login to GitHub Container Registry
