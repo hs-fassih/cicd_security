@@ -208,12 +208,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 10: Build Docker image (PR name lower cased)
-      - name: Build Docker image
+      # Step 10: Build or pull Docker image (branch-specific)
+      - name: Build or pull Docker image
         run: |
           IMAGE_TAG="ghcr.io/${{ github.repository }}:${{ github.sha }}"
-          echo "Building image: $IMAGE_TAG"
-          docker build -t $IMAGE_TAG .
+          echo "Image tag: $IMAGE_TAG"
+          
+          if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
+            echo "🔄 Using official Juice Shop image (pre-built)..."
+            # Pull the official Juice Shop image and tag it
+            docker pull bkimminich/juice-shop:latest
+            docker tag bkimminich/juice-shop:latest $IMAGE_TAG
+          else
+            echo "🐳 Building Flask app Docker image..."
+            docker build -t $IMAGE_TAG .
+          fi
+          
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       # Step 11: Trivy image scan
