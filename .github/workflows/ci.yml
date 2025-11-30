@@ -238,7 +238,7 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/test/juice-shop-pipeline" ]; then
             echo "Starting Juice Shop application..."
             APP_PORT=3000
-            docker run -d --name cicd_security -p $APP_PORT:$APP_PORT $IMAGE_TAG
+            docker run -d --name cicd_security --user root -p $APP_PORT:$APP_PORT $IMAGE_TAG
           else
             echo "Starting Flask application with docker compose..."
             APP_PORT=8080
